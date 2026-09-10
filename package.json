@@ -1,0 +1,23 @@
+{
+  "name": "visority-26-web",
+  "version": "1.0.0",
+  "description": "Visority '26 web project — local dev server, automated screenshots, and headless QA audits",
+  "main": "index.html",
+  "scripts": {
+    "serve": "node serve.mjs",
+    "shot": "node screenshot.mjs",
+    "shot:mobile": "node screenshot.mjs http://localhost:3000 mobile",
+    "shot:tablet": "node screenshot.mjs http://localhost:3000 tablet",
+    "qa": "node qa.mjs"
+  },
+  "keywords": [
+    "visority",
+    "website"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "puppeteer-core": "^25.8.0"
+  }
+}
