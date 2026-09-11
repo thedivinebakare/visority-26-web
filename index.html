@@ -210,6 +210,15 @@
       50% { opacity: 0.9; }
     }
 
+    .depth-layer {
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+      transform-origin: center center;
+    }
+
+    header nav { transition: padding 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease; }
+    header.scrolled nav { padding-top: 0.5rem; padding-bottom: 0.5rem; box-shadow: 0 32px 80px -20px rgba(6,5,10,0.98), 0 0 0 1px rgba(255,255,255,0.05); }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after {
@@ -218,6 +227,9 @@
         transition-duration: 0.01ms !important;
       }
       [data-reveal] { opacity: 1; transform: none; }
+      .depth-layer { transform: none !important; will-change: auto; }
+      #top { height: auto !important; }
+      #top > .sticky { position: relative !important; height: 100vh !important; }
     }
   </style>
 </head>
@@ -228,20 +240,23 @@
 
   <!-- ─── HEADER ─── -->
   <header class="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
-    <nav class="flex w-full max-w-5xl items-center justify-between gap-4 rounded-full border border-white/[0.07] bg-void/70 px-5 py-2.5 shadow-[0_18px_50px_-20px_rgba(6,5,10,0.9)] backdrop-blur-xl" aria-label="Primary">
-      <a href="#top" class="shrink-0 font-display text-base font-extrabold tracking-tightest text-white">
-        VISORITY<span class="text-accent">'26</span>
+    <nav class="flex w-full max-w-5xl items-center justify-between gap-4 rounded-full border border-white/[0.07] bg-void/70 px-6 py-3 shadow-[0_24px_60px_-18px_rgba(6,5,10,0.95),0_0_0_1px_rgba(255,255,255,0.04)] backdrop-blur-xl" aria-label="Primary">
+      <a href="#top" class="shrink-0 font-display text-base font-extrabold tracking-tightest text-white flex items-center gap-1.5">
+        VISORITY<span class="text-accent">'26</span><span class="inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle opacity-70 animate-pulse" aria-hidden="true"></span>
       </a>
       <ul class="hidden items-center gap-7 text-[13px] font-medium text-muted lg:flex">
-        <li><a href="#about" class="transition-colors duration-200 hover:text-white">About</a></li>
-        <li><a href="#tracks" class="transition-colors duration-200 hover:text-white">Tracks</a></li>
-        <li><a href="#speakers" class="transition-colors duration-200 hover:text-white">Speakers</a></li>
-        <li><a href="#schedule" class="transition-colors duration-200 hover:text-white">Schedule</a></li>
-        <li><a href="#pricing" class="transition-colors duration-200 hover:text-white">Tickets</a></li>
-        <li><a href="#faq" class="transition-colors duration-200 hover:text-white">FAQs</a></li>
+        <li><a href="#about" class="relative transition-colors duration-200 hover:text-white after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:bg-accent after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100 after:origin-left">About</a></li>
+        <li><a href="#tracks" class="relative transition-colors duration-200 hover:text-white after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:bg-accent after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100 after:origin-left">Tracks</a></li>
+        <li><a href="#speakers" class="relative transition-colors duration-200 hover:text-white after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:bg-accent after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100 after:origin-left">Speakers</a></li>
+        <li><a href="#schedule" class="relative transition-colors duration-200 hover:text-white after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:bg-accent after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100 after:origin-left">Schedule</a></li>
+        <li><a href="#pricing" class="relative transition-colors duration-200 hover:text-white after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:bg-accent after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100 after:origin-left">Tickets</a></li>
+        <li><a href="#faq" class="relative transition-colors duration-200 hover:text-white after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:bg-accent after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100 after:origin-left">FAQs</a></li>
       </ul>
-      <div class="flex items-center gap-3">
-        <span class="hidden rounded-full border border-white/[0.07] bg-void/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted backdrop-blur-sm sm:inline">Oct 28–30, 2026</span>
+      <div class="flex items-center gap-4">
+        <span class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-medium text-muted/70">
+          <span class="h-1 w-1 rounded-full bg-accent/60 inline-block" aria-hidden="true"></span>
+          Oct 28–30, 2026
+        </span>
         <a href="#pricing" class="press inline-flex shrink-0 items-center gap-2 rounded-full bg-accent px-5 py-2 text-sm font-bold text-white shadow-[0_10px_30px_-12px_rgba(150,28,250,0.6)]">
           Get Tickets
         </a>
@@ -251,92 +266,84 @@
 
   <main id="main">
 
-    <!-- ─── HERO ─── -->
-    <section id="top" aria-labelledby="hero-title" class="relative overflow-hidden pt-28 md:pt-36 pb-16 md:pb-24">
-      <!-- Ambient Backlight -->
-      <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
-        <div class="purple-glow absolute -top-40 left-1/2 h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-accent/[0.18] blur-[140px]"></div>
-        <div class="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-accent/[0.08] blur-[120px]"></div>
-        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent"></div>
-      </div>
+    <!-- ─── HERO — 3D DEPTH PARALLAX ─── -->
+    <section id="top" aria-labelledby="hero-title" class="relative h-[220vh] w-full" style="background:#000000;">
+      <div class="sticky top-0 h-screen w-full overflow-hidden" style="background:#000000;">
 
-      <div class="mx-auto max-w-6xl px-6 text-center">
-        <!-- Eyebrow Pill Badge -->
-        <div class="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.14em] text-white/90 shadow-[0_0_24px_rgba(150,28,250,0.25)] backdrop-blur-md" data-reveal>
-          <span class="text-accent">✦</span>
-          <span>Visority '26 &bull; 3 Days. One Room.</span>
+        <!-- Layer 0: Ambient Base Haze — anchored to bottom, constrained height -->
+        <div aria-hidden="true" class="pointer-events-none absolute bottom-0 left-0 w-full z-0" style="height:60vh; max-height:500px;">
+          <div class="purple-glow absolute bottom-0 left-1/2 h-full w-full -translate-x-1/2 rounded-full bg-accent/[0.28] blur-[140px]"></div>
+          <div class="absolute bottom-0 -left-20 h-3/4 w-96 rounded-full bg-accent/[0.14] blur-[120px]"></div>
+          <div class="absolute bottom-0 right-0 h-3/4 w-80 rounded-full bg-accent/[0.10] blur-[120px]"></div>
         </div>
 
-        <!-- Hero Headline -->
-        <h1 id="hero-title" class="mx-auto mt-7 max-w-5xl font-['Inter_Tight',sans-serif] text-[clamp(2.8rem,7.4vw,6.4rem)] font-extrabold leading-[0.98] tracking-[-0.035em] text-white" data-reveal data-reveal-delay="1">
-          Building Africa's<br>
-          Most Wanted <span class="bg-gradient-to-r from-white via-[#d8b4fe] to-accent bg-clip-text text-transparent">Professionals</span>
-        </h1>
-
-        <!-- Subheadline -->
-        <p class="mx-auto mt-6 max-w-2xl text-[15px] sm:text-lg leading-relaxed text-muted" data-reveal data-reveal-delay="2">
-          Thousands of Africans are building, but only a few are visible. We are building Africa's next generation of innovators and creators with a global footprint.
-        </p>
-
-        <!-- CTAs -->
-        <div class="mt-9 flex flex-wrap items-center justify-center gap-4" data-reveal data-reveal-delay="3">
-          <a href="#pricing" class="press inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-bold text-void shadow-[0_10px_30px_rgba(255,255,255,0.25)] hover:bg-zinc-100">
-            Get Tickets
-          </a>
-          <a href="#about" class="press inline-flex items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.03] px-7 py-3.5 text-sm font-semibold text-white hover:bg-white/[0.08] backdrop-blur-md">
-            Explore MasterClass
-          </a>
+        <!-- Layer 1: Stage Background Canvas -->
+        <div id="depth-bg" class="depth-layer absolute inset-0 z-10 pointer-events-none will-change-transform">
+          <!-- toggle: enable blur — style="filter: blur(0.6px) brightness(0.92)" -->
+          <img src="Brand_Assets/02. Images/hero_stage_bg.png" alt="Visority 2026 Keynote Stage" class="h-full w-full object-cover object-[center_84%]" style="filter: brightness(0.88)" />
+          <!-- Edge-blending Vignettes into #06050A -->
+          <!-- Edge-blending Vignettes — only bottom fade and sides; top is pure black void -->
+          <div class="absolute inset-x-0 bottom-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60"></div>
+          <div class="absolute inset-0 bg-accent/[0.04] mix-blend-color"></div>
         </div>
 
-        <!-- ─── PARALLAX CONGREGATION STAGE ─── -->
-        <div id="hero-stage" class="relative mt-14 sm:mt-18 h-[380px] sm:h-[480px] md:h-[580px] w-full overflow-hidden rounded-2xl md:rounded-3xl border border-white/[0.08] bg-[#07060D] shadow-[0_30px_90px_rgba(0,0,0,0.9),0_0_50px_rgba(150,28,250,0.15)]" data-reveal data-reveal-delay="3">
-          
-          <!-- Layer 0: Stage Lighting & Purple Aurora -->
-          <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0">
-            <div class="absolute -top-10 left-1/2 h-72 w-[85%] -translate-x-1/2 rounded-full bg-accent/[0.32] blur-[90px]"></div>
-            <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
+        <!-- Layer 2: Floating Depth Typography -->
+        <div id="depth-text" class="depth-layer absolute inset-0 z-20 flex flex-col items-center justify-start text-center px-6 select-none will-change-transform pointer-events-none" style="padding-top: clamp(7rem, 18vh, 11rem);">
+
+          <!-- Headline -->
+          <h1 id="hero-title" class="mx-auto max-w-4xl font-['Inter_Tight',sans-serif] text-[clamp(2.6rem,6vw,5.2rem)] font-extrabold leading-[1.0] tracking-[-0.04em] text-white drop-shadow-[0_4px_40px_rgba(0,0,0,0.98)]">
+            Building Africa's<br>
+            <span class="bg-gradient-to-r from-white via-[#d8b4fe] to-accent bg-clip-text text-transparent">Most Wanted</span> Professionals
+          </h1>
+
+          <!-- Subheadline -->
+          <p class="mx-auto mt-5 max-w-md text-[15px] sm:text-[16px] leading-relaxed text-muted drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+            Thousands of Africans are building, but only a few are visible. We are building Africa's next generation of innovators and creators with a global footprint.
+          </p>
+
+          <!-- CTAs -->
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-3 pointer-events-auto">
+            <a href="#pricing" class="press inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm sm:text-base font-bold text-void shadow-[0_10px_30px_rgba(255,255,250,0.25)] hover:bg-zinc-100">
+              Get Tickets
+            </a>
+            <a href="#about" class="press inline-flex items-center justify-center rounded-full border border-white/[0.14] bg-white/[0.05] px-7 py-3.5 text-sm sm:text-base font-semibold text-white hover:bg-white/[0.1] backdrop-blur-md">
+              Explore MasterClass
+            </a>
           </div>
+        </div>
+        <!-- pointer-events passthrough shim so CTAs inside the absolute content div remain clickable -->
 
-          <!-- Layer 1: Bold Typography Behind Audience (Parallax Layer) -->
-          <div id="parallax-text" class="pointer-events-none absolute inset-0 z-10 flex select-none flex-col items-center justify-start pt-6 sm:pt-10 md:pt-12 will-change-transform">
-            <span class="font-['Inter_Tight',sans-serif] text-[clamp(4.2rem,15vw,12.5rem)] font-black uppercase leading-none tracking-[-0.04em] text-transparent bg-clip-text bg-gradient-to-b from-white/30 via-white/15 to-transparent drop-shadow-[0_0_50px_rgba(150,28,250,0.5)]">
-              VISORITY'26
+        <!-- Layer 3: Foreground Audience Cutout — bottom-anchored, height-capped to liberate upper canvas -->
+        <div id="depth-fg" class="depth-layer absolute bottom-0 left-0 w-full z-30 pointer-events-none will-change-transform" style="height: clamp(96px, 22vh, 280px);">
+          <img src="Brand_Assets/02. Images/hero_audience_foreground.png" alt="Foreground audience silhouettes" class="h-full w-full object-cover object-[center_100%]" />
+          <!-- Bottom fade into next section -->
+          <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black to-transparent"></div>
+          <!-- Side vignettes -->
+          <div class="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black/70 to-transparent"></div>
+          <div class="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black/70 to-transparent"></div>
+        </div>
+
+        <!-- Layer 4: Live Metrics Bar -->
+        <div class="absolute inset-x-4 bottom-6 md:inset-x-8 md:bottom-8 z-40 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+          <div class="flex items-center gap-2.5 rounded-full border border-white/[0.12] bg-void/80 px-3.5 py-1.5 backdrop-blur-xl pointer-events-auto">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
             </span>
-            <span class="font-['Inter_Tight',sans-serif] text-[clamp(0.85rem,2.4vw,1.6rem)] font-bold uppercase tracking-[0.32em] text-accent/70 -mt-2 sm:-mt-4 md:-mt-6">
-              Visibility &bull; Authority &bull; Audacity
-            </span>
+            <span class="text-xs font-semibold text-white">Live Virtual MasterClass</span>
+            <span class="text-[11px] text-muted hidden sm:inline">&bull; Oct 28–30, 2026</span>
           </div>
 
-          <!-- Layer 2: Congregation of Audience Seated Listening to Keynote Speaker (Foreground Parallax Layer) -->
-          <div id="parallax-crowd" class="pointer-events-none absolute inset-x-0 bottom-0 top-12 sm:top-20 md:top-28 z-20 will-change-transform">
-            <img src="Brand_Assets/02. Images/hero_audience.jpg" alt="Congregation of innovators and creators listening to keynote speaker" class="h-full w-full object-cover object-bottom" />
-            <!-- Vignette & Fade Blends -->
-            <div class="absolute inset-0 bg-gradient-to-t from-[#07060D] via-[#07060D]/20 to-transparent"></div>
-            <div class="absolute inset-0 bg-gradient-to-b from-[#07060D]/80 via-transparent to-transparent"></div>
-            <div class="absolute inset-0 bg-accent/[0.06] mix-blend-color"></div>
+          <div class="flex items-center gap-4 sm:gap-6 rounded-full border border-white/[0.12] bg-void/80 px-4 py-1.5 backdrop-blur-xl pointer-events-auto text-[11px] sm:text-xs font-medium text-muted">
+            <div><span class="font-bold text-white">300+</span> Innovators</div>
+            <div class="h-3 w-px bg-white/15"></div>
+            <div><span class="font-bold text-white">3</span> Keynotes</div>
+            <div class="h-3 w-px bg-white/15"></div>
+            <div><span class="font-bold text-white">3</span> Days</div>
           </div>
-
-          <!-- Layer 3: Interactive Live Metrics Floating Overlays -->
-          <div class="absolute inset-x-4 bottom-4 md:inset-x-6 md:bottom-6 z-30 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-            <div class="flex items-center gap-2.5 rounded-full border border-white/[0.12] bg-void/80 px-3.5 py-1.5 backdrop-blur-xl pointer-events-auto">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
-              </span>
-              <span class="text-xs font-semibold text-white">Live Virtual MasterClass</span>
-              <span class="text-[11px] text-muted hidden sm:inline">&bull; Oct 28–30, 2026</span>
-            </div>
-
-            <div class="flex items-center gap-4 sm:gap-6 rounded-full border border-white/[0.12] bg-void/80 px-4 py-1.5 backdrop-blur-xl pointer-events-auto text-[11px] sm:text-xs font-medium text-muted">
-              <div><span class="font-bold text-white">300+</span> Innovators</div>
-              <div class="h-3 w-px bg-white/15"></div>
-              <div><span class="font-bold text-white">3</span> Keynotes</div>
-              <div class="h-3 w-px bg-white/15"></div>
-              <div><span class="font-bold text-white">3</span> Days</div>
-            </div>
-          </div>
-
         </div>
+
       </div>
     </section>
 
@@ -1007,34 +1014,57 @@
         });
       });
 
-      // Parallax scroll effect for Hero Stage
-      var heroStage = document.getElementById('hero-stage');
-      var pText = document.getElementById('parallax-text');
-      var pCrowd = document.getElementById('parallax-crowd');
+      // Header scroll-shrink
+      var siteHeader = document.querySelector('header');
+      function updateHeaderState() {
+        siteHeader.classList.toggle('scrolled', window.scrollY > 40);
+      }
+      updateHeaderState();
+      window.addEventListener('scroll', updateHeaderState, { passive: true });
 
-      if (heroStage && pText && pCrowd && !REDUCED) {
-        var ticking = false;
-        function updateParallax() {
-          var rect = heroStage.getBoundingClientRect();
+      // 3D Depth Parallax Scroll Engine
+      var heroSection = document.getElementById('top');
+      var depthBg = document.getElementById('depth-bg');
+      var depthText = document.getElementById('depth-text');
+      var depthFg = document.getElementById('depth-fg');
+
+      if (heroSection && depthBg && depthText && depthFg && !REDUCED) {
+        var depthTicking = false;
+        function updateDepthParallax() {
+          var rect = heroSection.getBoundingClientRect();
           var vh = window.innerHeight || document.documentElement.clientHeight;
-          if (rect.top < vh && rect.bottom > 0) {
-            var progress = (vh - rect.top) / (vh + rect.height);
-            var textShift = (progress - 0.5) * -65;
-            var crowdShift = (progress - 0.5) * 35;
-            pText.style.transform = 'translate3d(0, ' + textShift.toFixed(2) + 'px, 0)';
-            pCrowd.style.transform = 'translate3d(0, ' + crowdShift.toFixed(2) + 'px, 0)';
-          }
-          ticking = false;
+          var scrollable = heroSection.offsetHeight - vh;
+          if (scrollable <= 0) { depthTicking = false; return; }
+
+          var scrolled = -rect.top;
+          var progress = Math.max(0, Math.min(1, scrolled / scrollable));
+
+          // Layer 1: Background stage — slow ambient expansion + subtle drift
+          var bgScale = 1 + progress * 0.10;
+          var bgY = progress * 35;
+          depthBg.style.transform = 'translate3d(0,' + bgY.toFixed(1) + 'px,0) scale(' + bgScale.toFixed(4) + ')';
+
+          // Layer 2: Floating Typography — sinks down through depth, gliding behind audience heads
+          var textY = progress * 240;
+          var textOpacity = Math.max(0, 1 - progress * 1.15);
+          depthText.style.transform = 'translate3d(0,' + textY.toFixed(1) + 'px,0)';
+          depthText.style.opacity = textOpacity.toFixed(3);
+
+          // Layer 3: Foreground Audience Cutout — counter-parallax upward pull
+          var fgY = progress * -18;
+          depthFg.style.transform = 'translate3d(0,' + fgY.toFixed(1) + 'px,0)';
+
+          depthTicking = false;
         }
 
         window.addEventListener('scroll', function () {
-          if (!ticking) {
-            window.requestAnimationFrame(updateParallax);
-            ticking = true;
+          if (!depthTicking) {
+            window.requestAnimationFrame(updateDepthParallax);
+            depthTicking = true;
           }
         }, { passive: true });
 
-        updateParallax();
+        updateDepthParallax();
       }
     })();
   </script>
