@@ -223,6 +223,44 @@
       .marquee-track { animation: none; flex-wrap: wrap; width: auto; }
       [data-reveal] { opacity: 1; transform: none; }
     }
+
+    /* ── Partnership Lead Capture Modal ── */
+    .partner-glass {
+      position: relative;
+      background: rgba(38, 13, 13, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 24px 70px -20px rgba(0, 0, 0, 0.9), 0 0 60px -18px rgba(250, 203, 55, 0.25), 0 0 60px -18px rgba(229, 46, 113, 0.18);
+    }
+    .partner-glass::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(160deg, rgba(250, 203, 55, 0.28), rgba(253, 68, 4, 0.06) 45%, transparent 60%, rgba(229, 46, 113, 0.22));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    #partner-modal { opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s; }
+    #partner-modal.open { opacity: 1; visibility: visible; }
+    #partner-modal .partner-panel { transform: translateY(16px) scale(0.96); opacity: 0; transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease; }
+    #partner-modal.open .partner-panel { transform: none; opacity: 1; }
+    #partner-modal select, #partner-modal input[type="text"], #partner-modal textarea {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #FFF5E6;
+    }
+    #partner-modal select:focus, #partner-modal input[type="text"]:focus, #partner-modal textarea:focus {
+      border-color: rgba(250, 203, 55, 0.7);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(250, 203, 55, 0.14);
+    }
+    #partner-modal select option { background: #260D0D; color: #FFF5E6; }
   </style>
 </head>
 
@@ -312,10 +350,9 @@
             <span>Get Tickets</span>
             <span class="transition-transform group-hover:translate-x-1">→</span>
           </a>
-          <a href="#partnerships" class="press flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-line-strong bg-surface/90 px-7 py-4 text-xs font-bold uppercase tracking-wider text-accent-yellow backdrop-blur hover:bg-elevated hover:border-accent-yellow">
+<button type="button" onclick="openPartnerModal('general')" class="press flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-line-strong bg-surface/90 px-7 py-4 text-xs font-bold uppercase tracking-wider text-accent-yellow backdrop-blur hover:bg-elevated hover:border-accent-yellow">
             <span>Become a Partner</span>
-            <span>✦</span>
-          </a>
+          </button>
         </div>
 
         <!-- Social Proof & Live Countdown Bar -->
@@ -794,9 +831,9 @@
               </p>
             </div>
             <div class="mt-8 pt-6 border-t border-line">
-              <a href="mailto:nextgencon01@gmail.com?subject=Access%20Partner%20Inquiry%20-%20Visority%202026" class="press block w-full text-center rounded-full border border-line bg-surface py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-accent-yellow hover:text-void transition-colors">
+              <button type="button" onclick="openPartnerModal('access')" class="press block w-full text-center rounded-full border border-line bg-surface py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-accent-yellow hover:text-void transition-colors">
                 Apply as Access Partner
-              </a>
+              </button>
             </div>
           </div>
 
@@ -810,9 +847,9 @@
               </p>
             </div>
             <div class="mt-8 pt-6 border-t border-line">
-              <a href="mailto:nextgencon01@gmail.com?subject=Resource%20Partner%20Inquiry%20-%20Visority%202026" class="press block w-full text-center rounded-full border border-line bg-surface py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-accent-pink hover:text-white transition-colors">
+              <button type="button" onclick="openPartnerModal('resource')" class="press block w-full text-center rounded-full border border-line bg-surface py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-accent-pink hover:text-white transition-colors">
                 Apply as Resource Partner
-              </a>
+              </button>
             </div>
           </div>
 
@@ -833,12 +870,34 @@
               </ul>
             </div>
             <div class="mt-8 pt-6 border-t border-line">
-              <a href="mailto:nextgencon01@gmail.com?subject=Skill%20Fund%20Partner%20Inquiry%20-%20Visority%202026" class="press block w-full text-center rounded-full bg-accent-yellow py-3 text-xs font-bold uppercase tracking-wider text-void hover:bg-white transition-colors">
+              <button type="button" onclick="openPartnerModal('skill')" class="press block w-full text-center rounded-full bg-accent-yellow py-3 text-xs font-bold uppercase tracking-wider text-void hover:bg-white transition-colors">
                 Become a VISORITY Partner
-              </a>
+              </button>
             </div>
           </div>
 
+        </div>
+
+        <!-- ─── HIGH-TICKET CORPORATE SPONSORSHIP ROUTE ─── -->
+        <div class="sunburst-card relative mt-10 overflow-hidden rounded-3xl p-8 sm:p-12 border-2 border-accent-yellow shadow-[0_20px_50px_-15px_rgba(250,203,55,0.35)]">
+          <div class="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(250,203,55,0.14),transparent_65%)] blur-2xl pointer-events-none"></div>
+          <div class="relative grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-8 items-center">
+            <div>
+              <span class="rounded-full bg-accent-yellow/20 px-3 py-1 font-mono text-[11px] font-bold uppercase text-accent-yellow">CORPORATE</span>
+              <h3 class="mt-4 text-2xl sm:text-3xl font-bold text-white leading-tight">EXPLORE A HIGH-IMPACT CORPORATE SPONSORSHIP PACKAGE</h3>
+              <p class="mt-3 text-sm text-muted leading-relaxed max-w-xl">
+                Secure prominent brand placement across the full conference experience — keynote visibility, session sponsorship and strategic audience reach. Download the prospectus for tiered packages, or book a direct session with our team.
+              </p>
+            </div>
+            <div class="flex flex-col gap-3">
+              <a href="Brand_Assets/Visority_26_Sponsorship_Prospectus.pdf" target="_blank" rel="noopener" class="press inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-accent-yellow px-7 py-4 text-xs font-bold uppercase tracking-wider text-void shadow-[0_16px_35px_-10px_rgba(250,203,55,0.55)] hover:bg-white transition-colors">
+                Download Sponsorship Deck (PDF)
+              </a>
+              <a href="https://wa.me/2348012345678?text=Hi%20Visority%20Team%2C%20I%27m%20interested%20in%20a%20Corporate%20Sponsorship%20package%20for%20Visority%20%2726." target="_blank" rel="noopener" class="press inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-whatsapp-green/40 bg-whatsapp-green/10 px-7 py-4 text-xs font-bold uppercase tracking-wider text-whatsapp-green shadow-[0_12px_30px_-12px_rgba(37,211,102,0.5)] hover:bg-whatsapp-green hover:text-void transition-colors">
+                Book Sponsorship Session
+              </a>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -1423,6 +1482,74 @@
     </div>
   </footer>
 
+  <!-- ─── PARTNERSHIP LEAD CAPTURE MODAL ─── -->
+  <div id="partner-modal" class="fixed inset-0 z-[120] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="partner-modal-title" aria-hidden="true">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md" data-close aria-hidden="true"></div>
+
+    <div class="partner-glass relative w-full max-w-lg overflow-hidden rounded-3xl p-7 sm:p-9 partner-panel">
+      <button type="button" id="partner-close" data-close class="press absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/40 text-muted hover:text-white hover:border-accent-yellow" aria-label="Close partnership form">
+        ✕
+      </button>
+
+      <div class="inline-flex items-center gap-2 rounded-full border border-line bg-black/30 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-accent-yellow">
+        PARTNERSHIP APPLICATION
+      </div>
+      <h2 id="partner-modal-title" class="mt-4 font-display text-2xl uppercase leading-tight text-white">LET'S <span class="text-accent-yellow">DO THIS TOGETHER</span></h2>
+      <p class="mt-2 text-sm text-muted leading-relaxed">Tell us about your brand and how you'd love to partner with Visority '26.</p>
+
+      <form id="partner-form" class="mt-6 space-y-4" novalidate>
+        <div>
+          <label for="partner-org" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Organization / Brand Name</label>
+          <input id="partner-org" name="organization" type="text" autocomplete="organization" required class="w-full rounded-xl px-4 py-3 text-sm" placeholder="e.g. Design Studio NG">
+        </div>
+        <div>
+          <label for="partner-type" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Partnership Type</label>
+          <select id="partner-type" name="partnershipType" class="w-full rounded-xl px-4 py-3 text-sm">
+            <option value="">Select partnership type</option>
+            <option>Media Partner</option>
+            <option>Ecosystem Partner</option>
+            <option>Access Partner</option>
+            <option>Resource Partner</option>
+            <option>Skill Fund Partner</option>
+            <option>Community / Campus Ambassador</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="partner-reach" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Audience Reach / Community Size</label>
+          <select id="partner-reach" name="communitySize" class="w-full rounded-xl px-4 py-3 text-sm">
+            <option value="">Select audience reach</option>
+            <option>&lt; 5,000</option>
+            <option>5,000 – 25,000</option>
+            <option>25,000+</option>
+          </select>
+        </div>
+        <div>
+          <label for="partner-contact" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Primary Contact Email / WhatsApp</label>
+          <input id="partner-contact" name="contact" type="text" autocomplete="email" required class="w-full rounded-xl px-4 py-3 text-sm" placeholder="you@brand.com or +234...">
+        </div>
+        <div>
+          <label for="partner-note" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Proposed Collaboration Note</label>
+          <textarea id="partner-note" name="note" rows="3" class="w-full resize-none rounded-xl px-4 py-3 text-sm" placeholder="What do you have in mind?"></textarea>
+        </div>
+
+        <button id="partner-submit" type="submit" class="press w-full rounded-full bg-accent-yellow py-4 text-xs font-bold uppercase tracking-wider text-void shadow-[0_16px_35px_-10px_rgba(250,203,55,0.55)] hover:bg-white">
+          Submit Partnership Application
+        </button>
+        <p id="partner-err" class="hidden rounded-xl border border-accent-pink/40 bg-accent-pink/10 px-4 py-3 text-center text-xs text-accent-pink"></p>
+      </form>
+
+      <div id="partner-success" class="hidden pt-6 text-center">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-whatsapp-green/20 text-3xl font-bold text-whatsapp-green">✓</div>
+        <h3 class="mt-4 font-display text-xl uppercase text-whatsapp-green">Application Received!</h3>
+        <p class="mt-3 text-sm text-text-cream/90 leading-relaxed">Our team will reach out within 24–48 hours.</p>
+        <button type="button" data-close class="press mt-6 rounded-full border border-line bg-surface px-7 py-3 text-xs font-bold uppercase tracking-wider text-white hover:border-accent-yellow">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ─── SCRIPTS ─── -->
   <script>
     // Ticket Tier State & Google Sheets Webhook Config
@@ -1720,6 +1847,86 @@
     }, { threshold: 0.1 });
 
     document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+    // ── Partnership Lead Capture Modal ──
+    const partnerModal = document.getElementById('partner-modal');
+    const partnerForm = document.getElementById('partner-form');
+    const partnerType = document.getElementById('partner-type');
+    const partnerReach = document.getElementById('partner-reach');
+    const partnerTypeDefault = {
+      access: 'Access Partner',
+      resource: 'Resource Partner',
+      skill: 'Skill Fund Partner',
+    };
+
+    function openPartnerModal(tierName) {
+      document.getElementById('partner-err').classList.add('hidden');
+      document.getElementById('partner-err').textContent = '';
+      document.getElementById('partner-success').classList.add('hidden');
+      partnerForm.classList.remove('hidden');
+      partnerForm.reset();
+      if (tierName && partnerTypeDefault[tierName]) partnerType.value = partnerTypeDefault[tierName];
+      partnerModal.classList.add('open');
+      partnerModal.setAttribute('aria-hidden', 'false');
+      document.getElementById('partner-org').focus();
+    }
+
+    function closePartnerModal() {
+      partnerModal.classList.remove('open');
+      partnerModal.setAttribute('aria-hidden', 'true');
+      setTimeout(() => { partnerForm.reset(); }, 260);
+    }
+
+    document.querySelectorAll('#partner-modal [data-close]').forEach(el => {
+      el.addEventListener('click', closePartnerModal);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && partnerModal.classList.contains('open')) closePartnerModal();
+    });
+
+    partnerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const org = document.getElementById('partner-org').value.trim();
+      const contact = document.getElementById('partner-contact').value.trim();
+      const errEl = document.getElementById('partner-err');
+      if (!org || !contact) {
+        errEl.textContent = 'Please add your organization name and a contact email/WhatsApp.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const btn = document.getElementById('partner-submit');
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin inline-block mr-2">⏳</span> Submitting application...';
+
+      const payload = {
+        source: 'partnership_modal',
+        organization: org,
+        partnershipType: partnerType.value || 'Other',
+        communitySize: partnerReach.value || 'Unspecified',
+        contact,
+        note: document.getElementById('partner-note').value.trim(),
+        submittedAt: new Date().toISOString(),
+      };
+
+      const submitted = await submitFormToSheets(payload);
+      console.log('VISORITY 26 PARTNERSHIP APPLICATION', payload);
+
+      if (!submitted) {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        errEl.textContent = 'Something went wrong. Please try again or email nextgencon01@gmail.com.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      partnerForm.classList.add('hidden');
+      const success = document.getElementById('partner-success');
+      success.classList.remove('hidden');
+      success.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
   </script>
 
 </body>
