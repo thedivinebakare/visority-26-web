@@ -3,14 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checkout — Premium Pass | Visority '26</title>
-  <meta name="description" content="Complete your Premium Pass payment for Visority '26 — 3-day virtual MasterClass for African founders, creatives, and digital entrepreneurs.">
+  <title>Secure Checkout — VIP Pass | Visority '26</title>
+  <meta name="description" content="Complete your Visority '26 VIP Mastermind Pass payment — 3-day live MasterClass, keynote Q&A, HD recordings, and private mastermind access.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231C0606'/%3E%3Ctext x='16' y='23' font-family='sans-serif' font-size='18' font-weight='900' fill='%23FACB37' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E">
 
-  <!-- Google Fonts: Erica One (Display), Plus Jakarta Sans (Body), Space Grotesk (Meta/Mono) -->
+  <!-- Google Fonts: Erica One (Display) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Erica+One&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Erica+One&display=swap" rel="stylesheet">
+
+  <!-- Inter Tight (local brand font) -->
+  <style>
+    @font-face {
+      font-family: 'Inter Tight';
+      src: url("../../Brand_Assets/00. FOnts/Inter_Tight/InterTight-VariableFont_wght.ttf") format("truetype");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -21,24 +32,22 @@
             void: '#1C0606',
             surface: '#260D0D',
             elevated: '#331414',
-            'elevated-hover': '#401A1A',
             primary: '#FD4404',
-            'primary-glow': 'rgba(253, 68, 4, 0.45)',
             'accent-yellow': '#FACB37',
             'accent-pink': '#E52E71',
-            'shadow-sienna': '#8F2405',
+            'whatsapp-green': '#25D366',
+            'vip-violet': '#A855F7',
             'text-cream': '#FFF5E6',
             muted: '#B89B95',
             'muted-dark': '#7A605A',
             line: 'rgba(253, 68, 4, 0.18)',
-            'line-strong': 'rgba(250, 203, 55, 0.35)',
           },
           fontFamily: {
             display: ['"Erica One"', 'sans-serif'],
-            heading: ['"Erica One"', 'sans-serif'],
-            body: ['"Plus Jakarta Sans"', 'sans-serif'],
+            body: ['"Inter Tight"', 'sans-serif'],
             mono: ['"Space Grotesk"', 'monospace'],
           },
+          letterSpacing: { tightest: '-0.03em' },
         },
       },
     };
@@ -47,7 +56,7 @@
   <style>
     :root { color-scheme: dark; }
     html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-    body { background: #1C0606; color: #FFF5E6; overflow-x: hidden; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background: #000000; color: #FFF5E6; overflow-x: hidden; font-family: 'Inter Tight', sans-serif; }
 
     :focus-visible { outline: 2px solid #FACB37; outline-offset: 3px; }
 
@@ -55,25 +64,27 @@
       content: '';
       position: fixed;
       inset: 0;
-      z-index: 70;
+      z-index: 90;
       pointer-events: none;
-      opacity: 0.035;
+      opacity: 0.04;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       mix-blend-mode: soft-light;
     }
 
-    .sunburst-card {
+    .glass-card {
       position: relative;
-      background: #260D0D;
-      border: 1px solid rgba(253, 68, 4, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
-    .sunburst-card::before {
+    .glass-card::before {
       content: '';
       position: absolute;
       inset: 0;
       border-radius: inherit;
       padding: 1px;
-      background: linear-gradient(160deg, rgba(250, 203, 55, 0.25), rgba(253, 68, 4, 0.05) 45%, transparent 60%, rgba(253, 68, 4, 0.2));
+      background: linear-gradient(160deg, rgba(250, 203, 55, 0.22), rgba(168, 85, 247, 0.16) 45%, transparent 60%, rgba(229, 46, 113, 0.20));
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -81,10 +92,37 @@
       pointer-events: none;
     }
 
-    .press { transition: transform 0.15s ease, opacity 0.2s ease; }
+    .terminal {
+      position: relative;
+      background: linear-gradient(135deg, rgba(88, 28, 135, 0.45), rgba(24, 24, 27, 0.92) 55%, #000000);
+      border: 1px solid rgba(245, 158, 11, 0.30);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .terminal::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(160deg, rgba(250, 203, 55, 0.30), rgba(168, 85, 247, 0.22) 45%, transparent 60%, rgba(168, 85, 247, 0.24));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .press { transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease; }
     .press:hover { transform: translateY(-1px); }
     .press:active { transform: translateY(0) scale(0.97); }
     .press:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .panel { transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease; }
+    .panel:hover { transform: translateY(-1px); }
+
+    input, select { background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); color: #FFF5E6; }
+    input:focus, select:focus { border-color: rgba(250, 203, 55, 0.65); outline: none; box-shadow: 0 0 0 3px rgba(250, 203, 55, 0.14); }
 
     .checkout-row { border-top: 1px solid rgba(250, 203, 55, 0.14); }
   </style>
@@ -92,11 +130,19 @@
 
 <body class="bg-void text-text-cream leading-[1.65] antialiased selection:bg-primary selection:text-white">
 
-  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-full focus:bg-accent-yellow focus:px-5 focus:py-2 focus:font-semibold focus:text-void">Skip to content</a>
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent-yellow focus:px-5 focus:py-2 focus:font-semibold focus:text-void">Skip to content</a>
+
+  <!-- ─── AMBIENT BACKGROUND GLOWS ─── -->
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-40 -left-40 h-[560px] w-[560px] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.22),transparent_65%)] blur-3xl"></div>
+    <div class="absolute top-1/3 -right-48 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(250,203,55,0.12),transparent_65%)] blur-3xl"></div>
+    <div class="absolute -bottom-48 left-1/4 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(229,46,113,0.10),transparent_65%)] blur-3xl"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,#1C0606_0%,#000000_55%)]"></div>
+  </div>
 
   <!-- ─── HEADER / NAVBAR ─── -->
   <header class="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
-    <nav class="flex w-full max-w-5xl items-center justify-between gap-4 rounded-full border border-line bg-void/85 px-6 py-3 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.95),0_0_0_1px_rgba(250,203,55,0.1)] backdrop-blur-xl" aria-label="Checkout Navigation">
+    <nav class="flex w-full max-w-5xl items-center justify-between gap-4 rounded-full border border-white/10 bg-void/80 px-6 py-3 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.95),0_0_0_1px_rgba(250,203,55,0.08)] backdrop-blur-xl" aria-label="Checkout Navigation">
       <a href="/" class="shrink-0 font-display text-2xl tracking-wider text-accent-yellow drop-shadow-[0_2px_0px_#8F2405] flex items-center gap-1.5">
         VISORITY<span class="text-accent-pink text-xl">26</span>
       </a>
@@ -109,128 +155,173 @@
     </nav>
   </header>
 
-  <main id="main" class="relative pt-32 pb-24 px-6">
-
-    <!-- Ambient backdrop -->
-    <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(253,68,4,0.12),transparent_45%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_85%_80%,rgba(229,46,113,0.10),transparent_45%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(250,203,55,0.06),transparent_50%)]"></div>
-    </div>
+  <main id="main" class="relative pt-36 pb-24 px-6">
 
     <div class="mx-auto max-w-5xl">
 
-      <!-- Heading -->
+      <!-- ─── HEADING ─── -->
       <div class="text-center max-w-2xl mx-auto">
-        <div class="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-accent-yellow">
-          <span>●</span> PREMIUM PASS CHECKOUT
+        <div class="inline-flex items-center gap-2 rounded-full border border-vip-violet/35 bg-vip-violet/10 px-4 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-vip-violet shadow-[0_0_24px_rgba(168,85,247,0.22)]">
+          <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1l3 6h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-9.5L2 7h7l3-6z"/></svg>
+          VIP MASTERMIND ACCESS
         </div>
-        <h1 class="mt-4 font-display text-3xl sm:text-5xl uppercase leading-tight text-white drop-shadow-[0_4px_0px_#8F2405]">
-          ONE STEP FROM <span class="text-accent-yellow">THE ROOM</span>
+        <h1 class="mt-6 font-display text-[clamp(2rem,5.4vw,3.6rem)] uppercase leading-[1.02] tracking-wide text-white drop-shadow-[0_6px_0px_#8F2405]">
+          CLAIM YOUR <span class="text-accent-yellow">INNER CIRCLE</span> SEAT
         </h1>
-        <p class="mt-3 text-sm text-muted">Complete this payment to lock in your Premium Pass for Visority '26.</p>
+        <p class="mt-4 text-sm sm:text-base text-muted leading-relaxed">
+          Complete your VIP Mastermind payment and unlock the full Visority '26 experience.
+        </p>
       </div>
 
       <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-        <!-- ─── ORDER SUMMARY ─── -->
-        <section aria-labelledby="order-summary-title" class="sunburst-card rounded-3xl p-7 sm:p-8">
-          <h2 id="order-summary-title" class="font-display text-xl sm:text-2xl uppercase text-white tracking-wide">
-            YOUR <span class="text-accent-yellow">ORDER</span>
-          </h2>
+        <!-- ─── COLUMN A: ORDER SUMMARY & VIP BENEFITS ─── -->
+        <section aria-labelledby="order-summary-title" class="glass-card relative overflow-hidden rounded-3xl p-7 sm:p-9 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9),0_0_60px_-15px_rgba(168,85,247,0.28)]">
+          <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.20),transparent_65%)] blur-2xl pointer-events-none"></div>
 
-          <div class="mt-6 flex items-center gap-4 rounded-2xl border-2 border-accent-yellow bg-accent-yellow/5 p-4">
-            <div class="h-14 w-14 shrink-0 rounded-2xl bg-accent-yellow/20 flex items-center justify-center font-display text-2xl text-accent-yellow">✦</div>
-            <div class="min-w-0">
-              <p class="text-[10px] font-mono font-bold uppercase tracking-widest text-accent-yellow">Featured Tier</p>
-              <p class="truncate font-bold text-white text-lg">PREMIUM PASS (N5,000)</p>
-              <p class="text-xs text-muted">3-Day Conference • Recordings • Priority Q&amp;A</p>
-            </div>
-          </div>
+          <div class="relative">
+            <h2 id="order-summary-title" class="font-display text-xl sm:text-2xl uppercase tracking-wide text-white">
+              Your <span class="text-accent-yellow">Order</span>
+            </h2>
 
-          <dl class="mt-6 space-y-0">
-            <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
-              <dt class="font-semibold text-muted">Price</dt>
-              <dd class="font-bold text-white">N5,000</dd>
+            <div class="mt-6 rounded-2xl border border-vip-violet/30 bg-vip-violet/10 p-5 shadow-[0_0_28px_rgba(168,85,247,0.18)]">
+              <p class="text-xs font-bold uppercase tracking-widest text-accent-yellow">Visority '26</p>
+              <p class="mt-1 flex items-baseline justify-between gap-4 text-lg font-bold text-white">
+                <span>VIP Pass</span>
+                <span class="font-display text-accent-yellow whitespace-nowrap">₦5,000</span>
+              </p>
+              <p class="mt-1 text-xs text-muted">3-Day Live Masterclass • Closed-Door Sessions</p>
             </div>
-            <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
-              <dt class="font-semibold text-muted">Access</dt>
-              <dd class="font-bold text-white">3 Days • Live on Google Meet</dd>
-            </div>
-            <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
-              <dt class="font-semibold text-muted">Full Name</dt>
-              <dd id="co-name" class="font-bold text-white text-right">—</dd>
-            </div>
-            <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
-              <dt class="font-semibold text-muted">Email</dt>
-              <dd id="co-email" class="font-bold text-white text-right truncate max-w-[55%]">—</dd>
-            </div>
-            <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
-              <dt class="font-semibold text-muted">Tier</dt>
-              <dd class="font-bold text-accent-yellow">VIP</dd>
-            </div>
-          </dl>
 
-          <div class="mt-6 rounded-xl border border-line bg-void/60 p-4 text-xs text-muted leading-relaxed">
-            A confirmation email with your MasterClass access links and WhatsApp community invite will be sent after payment is verified.
+            <ul class="mt-7 space-y-3.5 text-sm text-text-cream/90">
+              <li class="flex items-start gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-yellow/15 font-bold text-accent-yellow">✓</span> Full 3-Day Live Masterclass Access</li>
+              <li class="flex items-start gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-yellow/15 font-bold text-accent-yellow">✓</span> Direct Keynote Speaker Q&amp;A Sessions</li>
+              <li class="flex items-start gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-yellow/15 font-bold text-accent-yellow">✓</span> Lifetime Access to All Session HD Recordings</li>
+              <li class="flex items-start gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-yellow/15 font-bold text-accent-yellow">✓</span> Exclusive Access to Private VIP Mastermind Group</li>
+              <li class="flex items-start gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-yellow/15 font-bold text-accent-yellow">✓</span> Resource Vault &amp; Playbooks</li>
+            </ul>
+
+            <dl class="mt-7 space-y-0">
+              <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
+                <dt class="font-semibold text-muted">Full Name</dt>
+                <dd id="co-name" class="font-bold text-white text-right">—</dd>
+              </div>
+              <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
+                <dt class="font-semibold text-muted">Email</dt>
+                <dd id="co-email" class="font-bold text-white text-right truncate max-w-[55%]">—</dd>
+              </div>
+              <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
+                <dt class="font-semibold text-muted">Tier</dt>
+                <dd class="font-bold text-vip-violet">VIP — Inner Circle</dd>
+              </div>
+              <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
+                <dt class="font-semibold text-muted">Dates</dt>
+                <dd class="font-bold text-white text-right">Oct 28–30, 2026</dd>
+              </div>
+              <div class="checkout-row flex justify-between gap-4 py-3 text-sm">
+                <dt class="font-semibold text-muted">Time</dt>
+                <dd class="font-bold text-white text-right">8:00 – 10:00 PM WAT</dd>
+              </div>
+            </dl>
+
+            <div class="mt-6 rounded-xl border border-white/10 bg-black/40 p-4 text-xs text-muted leading-relaxed">
+              A confirmation email with your private access links and VIP WhatsApp invite will be sent once payment is verified.
+            </div>
           </div>
         </section>
 
-        <!-- ─── PAYMENT STUB ─── -->
-        <section aria-labelledby="payment-title" class="sunburst-card rounded-3xl p-7 sm:p-8">
-          <h2 id="payment-title" class="font-display text-xl sm:text-2xl uppercase text-white tracking-wide">
-            PAYMENT <span class="text-accent-yellow">METHOD</span>
-          </h2>
+        <!-- ─── COLUMN B: INTEGRATED PAYMENT TERMINAL ─── -->
+        <section aria-labelledby="payment-title" class="terminal relative overflow-hidden rounded-3xl p-7 sm:p-9 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9),0_0_60px_-15px_rgba(250,203,55,0.22)]">
+          <div class="absolute -bottom-28 -right-24 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(250,203,55,0.16),transparent_65%)] blur-3xl pointer-events-none"></div>
 
-          <!-- Payment method selector -->
-          <div class="mt-6 space-y-2.5" role="listbox" aria-label="Payment method">
-            <button type="button" class="pay-method w-full flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-sm text-zinc-300 hover:bg-white/[0.06] hover:border-white/20 transition-all" data-active="true">
-              <span class="flex items-center gap-3">
-                <span class="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center text-accent-yellow font-mono text-sm font-bold">P</span>
-                <span class="text-left">
-                  <span class="block font-bold text-white">Paystack</span>
-                  <span class="block text-xs text-muted">Card • Bank Transfer • USSD</span>
-                </span>
-              </span>
-              <span class="pay-dot h-4 w-4 rounded-full border border-white/30"></span>
-            </button>
-            <button type="button" class="pay-method w-full flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-sm text-zinc-300 hover:bg-white/[0.06] hover:border-white/20 transition-all" data-active="false">
-              <span class="flex items-center gap-3">
-                <span class="h-9 w-9 rounded-xl bg-accent-pink/20 flex items-center justify-center text-accent-pink font-mono text-lg font-bold">₦</span>
-                <span class="text-left">
-                  <span class="block font-bold text-white">Direct Bank Transfer</span>
-                  <span class="block text-xs text-muted">Instant Naira transfer</span>
-                </span>
-              </span>
-              <span class="pay-dot h-4 w-4 rounded-full border border-white/30"></span>
-            </button>
+          <div class="relative">
+            <h2 id="payment-title" class="font-display text-xl sm:text-2xl uppercase tracking-wide text-white">
+              Payment <span class="text-accent-yellow">Terminal</span>
+            </h2>
+
+            <!-- Payment method tabs -->
+            <div class="mt-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/40 p-1.5" role="tablist" aria-label="Payment method">
+              <button id="tab-paystack" type="button" role="tab" aria-selected="true" aria-controls="panel-paystack" class="pay-tab rounded-xl px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-black bg-accent-yellow shadow-[0_8px_20px_-6px_rgba(250,203,55,0.5)]">Card / Paystack</button>
+              <button id="tab-bank" type="button" role="tab" aria-selected="false" aria-controls="panel-bank" class="pay-tab rounded-xl px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-muted hover:text-white">Bank Transfer</button>
+            </div>
+
+            <!-- ─── PAYSTACK PANEL ─── -->
+            <div id="panel-paystack" role="tabpanel" aria-labelledby="tab-paystack" class="mt-6">
+              <form id="pay-form" novalidate class="space-y-4">
+                <div>
+                  <label for="pay-name" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Full Name</label>
+                  <input id="pay-name" name="name" type="text" autocomplete="name" required class="w-full rounded-xl px-4 py-3 text-sm" placeholder="Your full name">
+                </div>
+                <div>
+                  <label for="pay-email" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Email Address</label>
+                  <input id="pay-email" name="email" type="email" autocomplete="email" required class="w-full rounded-xl px-4 py-3 text-sm" placeholder="you@example.com">
+                </div>
+
+                <div class="flex items-center justify-between rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm">
+                  <span class="font-semibold text-muted">Amount Due</span>
+                  <span class="font-display text-lg text-accent-yellow">₦5,000</span>
+                </div>
+
+                <button id="pay-btn" type="submit" class="press w-full rounded-full bg-gradient-to-r from-vip-violet to-accent-pink py-4 text-xs font-bold uppercase tracking-wider text-white shadow-[0_18px_40px_-12px_rgba(168,85,247,0.65)] hover:from-purple-500 hover:to-[#ff5c91]">
+                  Complete Payment &amp; Claim VIP Pass (₦5,000)
+                </button>
+
+                <div class="flex items-center justify-center gap-2 pt-1 text-[11px] text-muted-dark">
+                  <svg class="h-3.5 w-3.5 text-whatsapp-green" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 1 1 6 0v3H9z"/></svg>
+                  <span>🔒 256-Bit SSL Encrypted Payment</span>
+                </div>
+              </form>
+
+              <p id="pay-hint" class="mt-4 hidden rounded-xl border border-accent-yellow/30 bg-accent-yellow/10 px-4 py-3 text-center text-xs text-accent-yellow"></p>
+            </div>
+
+            <!-- ─── BANK TRANSFER PANEL ─── -->
+            <div id="panel-bank" role="tabpanel" aria-labelledby="tab-bank" class="mt-6 hidden">
+              <div class="rounded-2xl border border-white/10 bg-black/40 p-5 text-sm leading-relaxed">
+                <p class="font-bold uppercase tracking-wider text-accent-yellow text-xs">Step 1 — Transfer exactly ₦5,000</p>
+                <dl class="mt-3 space-y-2 text-sm">
+                  <div class="flex justify-between gap-4"><dt class="text-muted">Bank</dt><dd class="font-bold text-white">Zenith Bank</dd></div>
+                  <div class="flex justify-between gap-4"><dt class="text-muted">Account Name</dt><dd class="font-bold text-white">NextGen Conclave Ltd</dd></div>
+                  <div class="flex justify-between gap-4"><dt class="text-muted">Account Number</dt><dd class="font-bold text-accent-yellow">0000000000</dd></div>
+                </dl>
+                <p class="mt-3 text-xs text-muted-dark">Use the email you registered with as the transfer narration/comment so we can match your payment.</p>
+              </div>
+
+              <form id="bank-form" class="mt-5 space-y-4">
+                <div>
+                  <label for="bank-email" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Registered Email</label>
+                  <input id="bank-email" name="email" type="email" autocomplete="email" required class="w-full rounded-xl px-4 py-3 text-sm" placeholder="you@example.com">
+                </div>
+                <div>
+                  <label for="bank-receipt" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">Upload Receipt / Transfer Proof</label>
+                  <input id="bank-receipt" name="receipt" type="file" accept="image/*,.pdf" required class="w-full rounded-xl px-4 py-3 text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-vip-violet/20 file:px-4 file:py-2 file:text-[11px] file:font-bold file:uppercase file:tracking-wider file:text-white">
+                </div>
+                <button id="bank-submit" type="submit" class="press w-full rounded-full bg-accent-yellow py-4 text-xs font-bold uppercase tracking-wider text-void shadow-[0_18px_40px_-12px_rgba(250,203,55,0.55)] hover:bg-white">
+                  Submit Bank Transfer Proof
+                </button>
+              </form>
+
+              <p id="bank-hint" class="mt-4 hidden rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-center text-xs text-muted"></p>
+            </div>
+
+            <p id="sandbox-note" class="mt-6 rounded-xl border border-dashed border-vip-violet/40 px-4 py-3 text-center text-[11px] leading-relaxed text-muted">
+              Gateway is in &ldquo;test&rdquo; mode — payment is simulated until the live Paystack public key is connected.
+            </p>
           </div>
-
-          <!-- Pay action -->
-          <button id="pay-btn" type="button" class="press mt-7 w-full rounded-full bg-accent-yellow py-4 text-xs font-bold uppercase tracking-wider text-void shadow-[0_14px_35px_-10px_rgba(250,203,55,0.5)] hover:bg-white">
-            Pay N5,000 Now
-          </button>
-          <p class="mt-4 text-center text-[11px] text-muted-dark">
-            In the live version, this button opens the Paystack payment popup.
-          </p>
         </section>
 
       </div>
 
-      <!-- ─── CONFIRMATION (simulated success) ─── -->
-      <div id="checkout-confirm" class="hidden text-center py-14 max-w-xl mx-auto">
-        <div class="h-16 w-16 rounded-full bg-accent-yellow/20 text-accent-yellow flex items-center justify-center text-3xl mx-auto mb-4 font-bold">✓</div>
-        <h2 class="font-display text-2xl sm:text-3xl uppercase text-accent-yellow">Payment received!</h2>
+      <!-- ─── BANK-CONFIRMATION (bank transfer success state) ─── -->
+      <div id="bank-confirm" class="hidden mt-12 text-center py-14 max-w-xl mx-auto">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-whatsapp-green/20 text-3xl font-bold text-whatsapp-green">✓</div>
+        <h2 class="mt-4 font-display text-2xl sm:text-3xl uppercase text-accent-yellow">Proof received!</h2>
         <p class="mt-3 text-sm text-text-cream/90 leading-relaxed max-w-md mx-auto">
-          Your Premium Pass for Visority '26 is confirmed. Check your email for the payment verification steps and MasterClass access details.
+          Our team will verify your bank transfer within 24 hours and activate your VIP Mastermind Pass by email. Keep your receipt safe.
         </p>
         <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="/" class="press inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-[0_14px_35px_-10px_rgba(253,68,4,0.9)] hover:bg-[#ff551c]">
-            Back to Homepage
-          </a>
-          <a href="/#schedule" class="press inline-flex rounded-full border border-line bg-surface px-6 py-3 text-xs font-bold uppercase text-white hover:border-accent-yellow">
-            View 3-Day Schedule
-          </a>
+          <a href="/" class="press inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-[0_14px_35px_-10px_rgba(253,68,4,0.9)] hover:bg-[#ff551c]">Back to Homepage</a>
+          <a href="mailto:nextgencon01@gmail.com" class="press inline-flex rounded-full border border-line bg-surface px-6 py-3 text-xs font-bold uppercase tracking-wider text-white hover:border-accent-yellow">Contact Support</a>
         </div>
       </div>
 
@@ -238,7 +329,7 @@
   </main>
 
   <!-- ─── FOOTER ─── -->
-  <footer class="border-t border-line bg-void pb-8 px-6 pt-10">
+  <footer class="border-t border-white/5 bg-black/60 pb-8 px-6 pt-10">
     <div class="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
       <span class="font-display text-xl tracking-wider text-accent-yellow">VISORITY<span class="text-accent-pink">26</span></span>
       <p class="text-xs text-muted-dark">
@@ -248,44 +339,142 @@
   </footer>
 
   <script>
-    // Pre-fill order summary from the registration flow (if present)
-    (function () {
-      try {
-        const raw = localStorage.getItem('visority_vip_registration');
-        if (raw) {
-          const lead = JSON.parse(raw);
-          const nameEl = document.getElementById('co-name');
-          const emailEl = document.getElementById('co-email');
-          if (lead.fullName) nameEl.textContent = lead.fullName;
-          if (lead.email) emailEl.textContent = lead.email;
-        }
-      } catch (err) { /* storage unavailable */ }
-    })();
+    // ─── Registrant identity: URL query > localStorage > empty ───
+    function getLead() {
+      const params = new URLSearchParams(window.location.search);
+      let lead = null;
+      try { lead = JSON.parse(localStorage.getItem('visority_vip_registration') || 'null'); } catch (err) { /* storage unavailable */ }
+      return {
+        name: params.get('name') || (lead && lead.fullName) || '',
+        email: params.get('email') || (lead && lead.email) || '',
+      };
+    }
 
-    // Payment method toggle (stub)
-    document.querySelectorAll('.pay-method').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        document.querySelectorAll('.pay-method').forEach(function (b) {
-          b.setAttribute('data-active', 'false');
-          b.classList.remove('border-accent-yellow', 'bg-accent-yellow/5');
-          b.querySelector('.pay-dot').classList.remove('bg-accent-yellow', 'border-accent-yellow');
+    const lead = getLead();
+    const nameInput = document.getElementById('pay-name');
+    const emailInput = document.getElementById('pay-email');
+    nameInput.value = lead.name;
+    emailInput.value = lead.email;
+    document.getElementById('co-name').textContent = lead.name || '—';
+    document.getElementById('co-email').textContent = lead.email || '—';
+    document.getElementById('bank-email').value = lead.email;
+
+    // ─── PAYSTACK ───
+    // Replace this placeholder with your live/public Paystack key to go live.
+    const PAYSTACK_PUBLIC_KEY = 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY';
+    const IS_SANDBOX = !PAYSTACK_PUBLIC_KEY || /YOUR_/.test(PAYSTACK_PUBLIC_KEY);
+
+    function loadPaystackSDK() {
+      return new Promise(function (resolve) {
+        if (typeof PaystackPop !== 'undefined') return resolve();
+        const s = document.createElement('script');
+        s.src = 'https://js.paystack.co/v1/inline.js';
+        s.onload = function () { return resolve(); };
+        s.onerror = function () { return resolve(); };
+        document.head.appendChild(s);
+      });
+    }
+
+    function showHint(id, text) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.classList.remove('hidden');
+    }
+
+    function markVerified(reference, channel) {
+      try {
+        localStorage.setItem('visority_vip_verified', JSON.stringify({ reference, status: 'success', at: new Date().toISOString(), channel }));
+      } catch (err) { /* storage unavailable */ }
+    }
+
+    document.getElementById('pay-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      if (!name || !email) {
+        showHint('pay-hint', 'Please enter your full name and email address to continue.');
+        return;
+      }
+      const btn = document.getElementById('pay-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="inline-block animate-spin">⏳</span> Opening secure payment...';
+      const hint = document.getElementById('pay-hint');
+      hint.classList.add('hidden');
+
+      const onSuccess = function (tx) {
+        markVerified(tx.reference, 'paystack');
+        window.location.href = '/vip/thank-you/?reference=' + encodeURIComponent(tx.reference) + '&trxref=' + encodeURIComponent(tx.transaction || tx.reference);
+      };
+      const onCancel = function () {
+        btn.disabled = false;
+        btn.innerHTML = 'Complete Payment &amp; Claim VIP Pass (₦5,000)';
+        showHint('pay-hint', 'Payment was not completed. Your seat is still reserved — you can retry anytime.');
+      };
+
+      if (IS_SANDBOX) {
+        setTimeout(function () {
+          const ref = 'TEST-VIP-' + Date.now();
+          onSuccess({ reference: ref, transaction: ref });
+        }, 1200);
+      } else {
+        loadPaystackSDK().then(function () {
+          if (typeof PaystackPop === 'undefined') {
+            btn.disabled = false;
+            btn.innerHTML = 'Complete Payment &amp; Claim VIP Pass (₦5,000)';
+            onCancel();
+            return;
+          }
+          PaystackPop.setup({
+            key: PAYSTACK_PUBLIC_KEY,
+            email,
+            amount: 5000 * 100,
+            currency: 'NGN',
+            metadata: { custom_fields: [{ display_name: 'Full Name', variable_name: 'full_name', value: name }, { display_name: 'Tier', variable_name: 'tier', value: 'VIP' }] },
+            callback: onSuccess,
+            onClose: onCancel,
+          }).openIframe();
         });
-        btn.setAttribute('data-active', 'true');
-        btn.classList.add('border-accent-yellow', 'bg-accent-yellow/5');
-        btn.querySelector('.pay-dot').classList.add('bg-accent-yellow', 'border-accent-yellow');
+      }
+    });
+
+    // ─── TABS ───
+    document.querySelectorAll('.pay-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        const target = tab.getAttribute('aria-controls');
+        document.querySelectorAll('.pay-tab').forEach(function (t) {
+          t.setAttribute('aria-selected', '' + (t === tab));
+          if (t === tab) {
+            t.classList.add('bg-accent-yellow', 'text-black', 'shadow-[0_8px_20px_-6px_rgba(250,203,55,0.5)]');
+            t.classList.remove('text-muted');
+          } else {
+            t.classList.remove('bg-accent-yellow', 'text-black', 'shadow-[0_8px_20px_-6px_rgba(250,203,55,0.5)]');
+            t.classList.add('text-muted');
+          }
+        });
+        document.getElementById('panel-paystack').classList.toggle('hidden', target !== 'panel-paystack');
+        document.getElementById('panel-bank').classList.toggle('hidden', target !== 'panel-bank');
       });
     });
 
-    // Simulated payment completion (Paystack wiring deferred)
-    document.getElementById('pay-btn').addEventListener('click', function () {
-      const btn = this;
+    // ─── BANK TRANSFER ───
+    document.getElementById('bank-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = document.getElementById('bank-email').value.trim();
+      const file = document.getElementById('bank-receipt').files[0];
+      if (!email || !file) {
+        showHint('bank-hint', 'Enter your registered email and attach your transfer receipt.');
+        return;
+      }
+      const btn = document.getElementById('bank-submit');
       btn.disabled = true;
-      btn.innerHTML = '<span class="animate-spin inline-block mr-2">⏳</span> Processing payment...';
+      btn.innerHTML = '<span class="inline-block animate-spin">⏳</span> Submitting proof...';
       setTimeout(function () {
-        document.querySelector('.grid').classList.add('hidden');
-        document.getElementById('checkout-confirm').classList.remove('hidden');
-        document.getElementById('checkout-confirm').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 1600);
+        try {
+          localStorage.setItem('visority_vip_pending', JSON.stringify({ email, fileName: file.name, at: new Date().toISOString() }));
+        } catch (err) { /* storage unavailable */ }
+        document.getElementById('bank-confirm').classList.remove('hidden');
+        document.getElementById('bank-confirm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 1000);
     });
   </script>
 

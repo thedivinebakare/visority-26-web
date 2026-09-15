@@ -1700,7 +1700,7 @@
         try {
           localStorage.setItem('visority_vip_registration', JSON.stringify(payload));
         } catch (err) { /* storage unavailable */ }
-        window.location.href = '/checkout/vip/';
+        window.location.href = '/checkout/vip/?name=' + encodeURIComponent(payload.fullName) + '&email=' + encodeURIComponent(payload.email);
         return;
       }
 
