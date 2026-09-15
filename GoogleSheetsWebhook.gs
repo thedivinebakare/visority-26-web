@@ -1,18 +1,17 @@
 /**
- * Visority '26 Registration Webhook — Google Apps Script
+ * Visority '26 Registration Webhook — Google Apps Script (Optimized)
  *
- * HOW TO DEPLOY
- * ─────────────
- * 1. Create a blank Google Sheet (or use your existing one).
- * 2. Click  Extensions ▸ Apps Script  (opens the script editor).
- * 3. Replace all default code with this script.
- * 4. Click  Deploy  ▸  New deployment  ▸  Web app
- *      - Description: "Visority '26 Registration Webhook"
- *      - Execute as:   Me
- *      - Who has access: Anyone
- * 5. Click  Deploy  and copy the Web app URL.
- * 6. Paste the URL into index.html:
- *      const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/YOUR_DEPLOY_ID/exec';
+ * HOW TO UPDATE YOUR DEPLOYMENT
+ * ──────────────────────────────
+ * 1. In your Google Sheet, click Extensions ▸ Apps Script.
+ * 2. Replace all code in Code.gs with this script.
+ * 3. Ensure Row 1 of Sheet1 has these exact column headers:
+ *    [Timestamp | Full Name | Email | Role | WhatsApp | Core Challenge | Desired Experience | Note | Tier]
+ * 4. Click Deploy ▸ Manage deployments.
+ * 5. Click the edit (pencil) icon next to your active Web App deployment.
+ * 6. Under "Version", select "New version".
+ * 7. Ensure "Who has access" is set to "Anyone".
+ * 8. Click Deploy.
  *
  * ──────────────────────────────────────────────────────────
  * Column Mapping (Sheet columns A → I)
@@ -35,18 +34,30 @@ function doPost(e) {
 
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = JSON.parse(e.postData.contents);
+    var data = {};
+
+    // 1. Try parsing JSON body from postData
+    if (e && e.postData && e.postData.contents) {
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch (jsonErr) {
+        // Fallback to URL parameters if JSON parsing fails
+        data = e.parameter || {};
+      }
+    } else if (e && e.parameter) {
+      data = e.parameter;
+    }
 
     sheet.appendRow([
       data.submittedAt || new Date().toISOString(),
-      data.fullName      || '',
-      data.email         || '',
-      data.role          || '',
-      data.whatsApp      || '',
+      data.fullName || '',
+      data.email || '',
+      data.role || '',
+      data.whatsApp || '',
       data.coreChallenge || '',
       data.desiredExperience || '',
-      data.customNote    || '',
-      data.selectedTier  || 'standard'
+      data.customNote || '',
+      data.selectedTier || 'standard'
     ]);
 
     return ContentService
@@ -61,4 +72,10 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function doGet(e) {
+  return ContentService
+    .createTextOutput("Visority '26 Webhook Active")
+    .setMimeType(ContentService.MimeType.TEXT);
 }
