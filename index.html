@@ -1664,6 +1664,8 @@
 
     async function handleFormSubmit(e) {
       e.preventDefault();
+      applyOthersValue(4, 'f-challenge');
+      applyOthersValue(5, 'f-expect');
       const payload = {
         fullName: document.getElementById('f-name').value.trim(),
         email: document.getElementById('f-email').value.trim(),
