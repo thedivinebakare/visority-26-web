@@ -1704,9 +1704,10 @@
         return;
       }
 
-      document.getElementById('lead-form').classList.add('hidden');
-      document.getElementById('selected-pass-indicator').classList.add('hidden');
-      document.getElementById('inline-confirm-box').classList.remove('hidden');
+      try {
+        localStorage.setItem('visority_standard_registration', JSON.stringify(payload));
+      } catch (err) { /* storage unavailable */ }
+      window.location.href = '/access/standard-confirmation/?name=' + encodeURIComponent(payload.fullName);
     }
 
     // Scroll Reveal Observer
