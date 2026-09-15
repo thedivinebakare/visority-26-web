@@ -1791,6 +1791,21 @@
       showStep(current - 1);
     }
 
+    // Enter-key auto-advance: Enter behaves like "Continue →" on steps 1-5
+    function handleFormKeydown(e) {
+      if (e.key !== 'Enter' || e.isComposing || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.target && e.target.tagName === 'TEXTAREA') return;
+      const active = document.querySelector('.reg-step.is-active');
+      if (!active) return;
+      const step = parseInt(active.dataset.step, 10);
+      if (step < 1 || step > 5) return;
+      // The "Others" input advances on Enter itself — never double-advance
+      if (e.target && e.target.id && e.target.id.indexOf('input-others-step') === 0) return;
+      e.preventDefault();
+      nextStep(step);
+    }
+    document.getElementById('lead-form').addEventListener('keydown', handleFormKeydown);
+
     async function handleFormSubmit(e) {
       e.preventDefault();
       applyOthersValue(4, 'f-challenge');
