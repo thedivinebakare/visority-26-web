@@ -132,24 +132,39 @@
       width: 100%;
       text-align: left;
       border-radius: 0.85rem;
-      border: 1px solid rgba(253, 68, 4, 0.18);
-      background: #280E0E;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.03);
       padding: 0.9rem 1.1rem;
       font-size: 0.92rem;
-      color: #FFF5E6;
+      color: #D4D4D8;
       cursor: pointer;
-      transition: transform 0.18s cubic-bezier(0.2,0.8,0.2,1), border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      transition: all 0.3s ease-in-out;
     }
-    .reg-chip:hover { border-color: rgba(250, 203, 55, 0.5); transform: translateY(-2px); background: #331414; }
-    .reg-chip:active { transform: translateY(0) scale(0.985); }
+    .reg-chip:hover { border-color: rgba(255, 255, 255, 0.20); background: rgba(255, 255, 255, 0.06); }
+    .reg-chip:active { transform: scale(0.99); }
     .reg-chip[aria-pressed="true"] {
-      border-color: #FACB37;
-      background: linear-gradient(180deg, rgba(250, 203, 55, 0.18), rgba(253, 68, 4, 0.12));
-      box-shadow: 0 10px 25px -10px rgba(250, 203, 55, 0.5), 0 0 0 2px rgba(250, 203, 55, 0.3);
-      transform: translateY(-1px);
+      border-color: rgba(168, 85, 247, 0.6);
+      background: linear-gradient(to right, rgba(59, 7, 100, 0.4), rgba(88, 28, 135, 0.2), rgba(255, 255, 255, 0));
+      color: #fff;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), 0 0 0 1px rgba(192, 132, 252, 0.3);
     }
     .reg-chip-title { font-weight: 700; color: #FFF5E6; }
     .reg-chip-sub { display: block; margin-top: 2px; font-size: 0.78rem; color: #B89B95; }
+
+    /* "Others" inline expandable input */
+    .others-wrapper {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      margin-top: 0;
+      transition: grid-template-rows 0.25s ease-in-out, opacity 0.25s ease-in-out, margin-top 0.25s ease-in-out;
+    }
+    .others-wrapper[data-open="true"] {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      margin-top: 12px;
+    }
+    .others-inner { overflow: hidden; }
 
     .reg-check {
       position: relative;
@@ -932,28 +947,28 @@
               <p class="text-xs text-muted mb-6">Select one option.</p>
               
               <div class="space-y-3">
-                <div class="reg-chip" onclick="selectChip(this, 'f-role', 'Founders')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-role', 'Founders', false, 2)">
                   <div>
                     <span class="reg-chip-title">Founders</span>
                     <span class="reg-chip-sub">Visionaries building startups, organisations, and businesses</span>
                   </div>
                   <div class="reg-check"></div>
                 </div>
-                <div class="reg-chip" onclick="selectChip(this, 'f-role', 'Creatives')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-role', 'Creatives', false, 2)">
                   <div>
                     <span class="reg-chip-title">Creatives</span>
                     <span class="reg-chip-sub">Creators — writers, designers, artists</span>
                   </div>
                   <div class="reg-check"></div>
                 </div>
-                <div class="reg-chip" onclick="selectChip(this, 'f-role', 'Digital Entrepreneur')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-role', 'Digital Entrepreneur', false, 2)">
                   <div>
                     <span class="reg-chip-title">Digital Entrepreneur</span>
                     <span class="reg-chip-sub">Business owners who operate, sell and venture primarily online</span>
                   </div>
                   <div class="reg-check"></div>
                 </div>
-                <div class="reg-chip" onclick="selectChip(this, 'f-role', 'Professionals / Young Leaders')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-role', 'Professionals / Young Leaders', false, 2)">
                   <div>
                     <span class="reg-chip-title">Professionals / Young Leaders</span>
                     <span class="reg-chip-sub">Career-driven experts & emerging changemakers</span>
@@ -995,26 +1010,44 @@
               <p class="text-xs text-muted mb-6">What is the main challenge holding you back right now?</p>
               
               <div class="space-y-3">
-                <div class="reg-chip" onclick="selectChip(this, 'f-challenge', 'Lack of visibility & low market reach')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-challenge', 'Lack of visibility & low market reach', false, 4)">
                   <div>
                     <span class="reg-chip-title">Lack of visibility &amp; low market reach</span>
                     <span class="reg-chip-sub">Great craft, but nobody knows who I am</span>
                   </div>
                   <div class="reg-check"></div>
                 </div>
-                <div class="reg-chip" onclick="selectChip(this, 'f-challenge', 'Underpricing & inability to charge premium')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-challenge', 'Underpricing & inability to charge premium', false, 4)">
                   <div>
                     <span class="reg-chip-title">Underpricing &amp; inability to charge premium</span>
                     <span class="reg-chip-sub">Stuck in low pricing bargaining cycles</span>
                   </div>
                   <div class="reg-check"></div>
                 </div>
-                <div class="reg-chip" onclick="selectChip(this, 'f-challenge', 'Difficulty positioning for global clients')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-challenge', 'Difficulty positioning for global clients', false, 4)">
                   <div>
                     <span class="reg-chip-title">Difficulty positioning for global clients</span>
                     <span class="reg-chip-sub">Struggling to build international reach</span>
                   </div>
                   <div class="reg-check"></div>
+                </div>
+                <div class="reg-chip" onclick="selectChip(this, 'f-challenge', 'Others', true, 4)">
+                  <div>
+                    <span class="reg-chip-title">Others</span>
+                    <span class="reg-chip-sub">Tell us your unique challenge</span>
+                  </div>
+                  <div class="reg-check"></div>
+                </div>
+              </div>
+              <div id="wrapper-others-step4" class="others-wrapper" data-open="false">
+                <div class="others-inner">
+                  <input
+                    type="text"
+                    id="input-others-step4"
+                    placeholder="Please specify..."
+                    class="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-500/40 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all"
+                    onkeydown="handleOthersKeydown(event, 4)"
+                  />
                 </div>
               </div>
               <input type="hidden" id="f-challenge" value="">
@@ -1031,19 +1064,37 @@
               <p class="text-xs text-muted mb-6">What are you most excited to gain from attending?</p>
               
               <div class="space-y-3">
-                <div class="reg-chip" onclick="selectChip(this, 'f-expect', 'Actionable frameworks for authority and positioning')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-expect', 'Actionable frameworks for authority and positioning', false, 5)">
                   <div>
                     <span class="reg-chip-title">Actionable frameworks for authority &amp; pricing</span>
                     <span class="reg-chip-sub">Clear blueprints from keynote experts</span>
                   </div>
                   <div class="reg-check"></div>
                 </div>
-                <div class="reg-chip" onclick="selectChip(this, 'f-expect', 'High-caliber network of 300+ African builders')">
+                <div class="reg-chip" onclick="selectChip(this, 'f-expect', 'High-caliber network of 300+ African builders', false, 5)">
                   <div>
                     <span class="reg-chip-title">High-caliber community &amp; networking</span>
                     <span class="reg-chip-sub">Connecting with peers across 14 countries</span>
                   </div>
                   <div class="reg-check"></div>
+                </div>
+                <div class="reg-chip" onclick="selectChip(this, 'f-expect', 'Others', true, 5)">
+                  <div>
+                    <span class="reg-chip-title">Others</span>
+                    <span class="reg-chip-sub">Describe what you want to experience</span>
+                  </div>
+                  <div class="reg-check"></div>
+                </div>
+              </div>
+              <div id="wrapper-others-step5" class="others-wrapper" data-open="false">
+                <div class="others-inner">
+                  <input
+                    type="text"
+                    id="input-others-step5"
+                    placeholder="Please specify..."
+                    class="w-full px-4 py-3 rounded-xl bg-black/60 border border-purple-500/40 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all"
+                    onkeydown="handleOthersKeydown(event, 5)"
+                  />
                 </div>
               </div>
               <input type="hidden" id="f-expect" value="">
@@ -1123,7 +1174,7 @@
           </div>
 
           <div class="mt-8 pt-6 border-t border-line">
-            <button onclick="selectPassAndScroll('STANDARD PASS (FREE)')" class="press w-full rounded-full border border-line bg-surface py-3.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-white hover:text-void transition-colors">
+            <button onclick="selectPassAndScroll('STANDARD PASS (FREE)', 'standard')" class="press w-full rounded-full border border-line bg-surface py-3.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-white hover:text-void transition-colors">
               Reserve Your Seat (FREE)
             </button>
           </div>
@@ -1155,7 +1206,7 @@
           </div>
 
           <div class="mt-8 pt-6 border-t border-line">
-            <button onclick="selectPassAndScroll('PREMIUM PASS (N5,000)')" class="press w-full rounded-full bg-accent-yellow py-3.5 text-xs font-bold uppercase tracking-wider text-void shadow-lg hover:bg-white transition-colors">
+            <button onclick="selectPassAndScroll('PREMIUM PASS (N5,000)', 'vip')" class="press w-full rounded-full bg-accent-yellow py-3.5 text-xs font-bold uppercase tracking-wider text-void shadow-lg hover:bg-white transition-colors">
               Reserve Your Seat (N5,000)
             </button>
           </div>
@@ -1374,6 +1425,43 @@
 
   <!-- ─── SCRIPTS ─── -->
   <script>
+    // Ticket Tier State & Google Sheets Webhook Config
+    let selectedTier = 'standard';
+    const GOOGLE_SHEETS_WEBHOOK_URL = window.GOOGLE_SHEETS_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycbxReGOEQtFDduKP7mDqSrcCaBOl5EJjh3tvxHxeOxT21sEyIcRUeO9L50-9Ah4Ml54z/exec';
+
+    function initSelectedTier() {
+      const params = new URLSearchParams(window.location.search);
+      selectedTier = params.get('tier') === 'vip' ? 'vip' : 'standard';
+      if (selectedTier === 'vip') {
+        const bannerName = document.getElementById('current-pass-name');
+        if (bannerName) bannerName.textContent = 'PREMIUM PASS (N5,000)';
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSelectedTier);
+    } else {
+      initSelectedTier();
+    }
+
+    async function submitFormToSheets(payload) {
+      if (!GOOGLE_SHEETS_WEBHOOK_URL || GOOGLE_SHEETS_WEBHOOK_URL.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
+        console.warn('Google Sheets Webhook URL not configured. Simulating payload submission:', payload);
+        return true;
+      }
+      try {
+        await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+          body: JSON.stringify(payload)
+        });
+        return true;
+      } catch (err) {
+        console.error('Error submitting form to Google Sheets:', err);
+        return false;
+      }
+    }
+
     // Smooth 60fps GPU Parallax on Hero Stage Background
     const heroBg = document.getElementById('hero-parallax-bg');
     if (heroBg) {
@@ -1464,7 +1552,8 @@
     }
 
     // Inline Pass Selection & Smooth Scroll (Zero Popups)
-    function selectPassAndScroll(passName) {
+    function selectPassAndScroll(passName, tier) {
+      selectedTier = tier === 'vip' ? 'vip' : 'standard';
       const banner = document.getElementById('selected-pass-indicator');
       document.getElementById('current-pass-name').textContent = passName;
       banner.classList.add('pass-flash');
@@ -1476,11 +1565,43 @@
     }
 
     // Form Navigation & Selection
-    function selectChip(el, inputId, val) {
+    function selectChip(el, inputId, val, isOthers, stepNum) {
       const container = el.parentElement;
       container.querySelectorAll('.reg-chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
       el.setAttribute('aria-pressed', 'true');
       document.getElementById(inputId).value = val;
+
+      const wrapper = stepNum ? document.getElementById('wrapper-others-step' + stepNum) : null;
+      const input = stepNum ? document.getElementById('input-others-step' + stepNum) : null;
+
+      if (wrapper) {
+        if (isOthers) {
+          wrapper.setAttribute('data-open', 'true');
+          if (input) setTimeout(() => input.focus(), 180);
+        } else {
+          wrapper.setAttribute('data-open', 'false');
+          if (input) input.value = '';
+        }
+      }
+
+      if (!isOthers && stepNum) {
+        setTimeout(() => nextStep(stepNum), 150);
+      }
+    }
+
+    function handleOthersKeydown(event, stepNum) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        nextStep(stepNum);
+      }
+    }
+
+    function applyOthersValue(stepNum, inputId) {
+      const hidden = document.getElementById(inputId);
+      if (hidden && hidden.value === 'Others') {
+        const custom = document.getElementById('input-others-step' + stepNum);
+        hidden.value = custom && custom.value.trim() ? custom.value.trim() : 'Others';
+      }
     }
 
     function showStep(stepNum) {
@@ -1510,6 +1631,10 @@
           return;
         }
         showInlineError(3, false);
+      } else if (current === 4) {
+        applyOthersValue(4, 'f-challenge');
+      } else if (current === 5) {
+        applyOthersValue(5, 'f-expect');
       }
       showStep(current + 1);
     }
@@ -1523,8 +1648,46 @@
       showStep(current - 1);
     }
 
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
       e.preventDefault();
+      const payload = {
+        fullName: document.getElementById('f-name').value.trim(),
+        email: document.getElementById('f-email').value.trim(),
+        role: document.getElementById('f-role').value,
+        whatsApp: document.getElementById('f-phone').value.trim(),
+        coreChallenge: document.getElementById('f-challenge').value,
+        desiredExperience: document.getElementById('f-expect').value,
+        customNote: document.getElementById('f-note').value.trim(),
+        selectedTier,
+        submittedAt: new Date().toISOString(),
+      };
+
+      const submitBtn = document.querySelector('#lead-form button[type="submit"]');
+      const originalHTML = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="animate-spin inline-block mr-2">⏳</span> Submitting access pass...';
+      }
+
+      const submitted = await submitFormToSheets(payload);
+      console.log('VISORITY 26 REGISTRATION PAYLOAD', payload);
+
+      if (!submitted) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+        }
+        return;
+      }
+
+      if (selectedTier === 'vip') {
+        try {
+          localStorage.setItem('visority_vip_registration', JSON.stringify(payload));
+        } catch (err) { /* storage unavailable */ }
+        window.location.href = '/checkout/vip/';
+        return;
+      }
+
       document.getElementById('lead-form').classList.add('hidden');
       document.getElementById('selected-pass-indicator').classList.add('hidden');
       document.getElementById('inline-confirm-box').classList.remove('hidden');
