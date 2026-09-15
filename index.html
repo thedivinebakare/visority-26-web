@@ -1555,6 +1555,7 @@
     // Ticket Tier State & Google Sheets Webhook Config
     let selectedTier = 'standard';
     const GOOGLE_SHEETS_WEBHOOK_URL = window.GOOGLE_SHEETS_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycbxReGOEQtFDduKP7mDqSrcCaBOl5EJjh3tvxHxeOxT21sEyIcRUeO9L50-9Ah4Ml54z/exec';
+    const PARTNER_SHEETS_WEBHOOK_URL = window.PARTNER_SHEETS_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycbwPwN7HEGUUfGmW2JRLHaxB1h5fbAvY2rwbWD7Ain_9lx0zwFX-4DJ5v9Y8VzvJmEse/exec';
 
     function initSelectedTier() {
       const params = new URLSearchParams(window.location.search);
@@ -1570,8 +1571,9 @@
       initSelectedTier();
     }
 
-    async function submitFormToSheets(payload) {
-      if (!GOOGLE_SHEETS_WEBHOOK_URL || GOOGLE_SHEETS_WEBHOOK_URL.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
+    async function submitFormToSheets(payload, webhookUrl) {
+      const targetUrl = webhookUrl || GOOGLE_SHEETS_WEBHOOK_URL;
+      if (!targetUrl || targetUrl.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
         console.warn('Google Sheets Webhook URL not configured. Simulating payload submission:', payload);
         return true;
       }
@@ -1581,7 +1583,7 @@
         Object.keys(payload).forEach(key => formBody.append(key, payload[key] || ''));
 
         // Primary dispatch: Form encoded
-        fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+        fetch(targetUrl, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1589,7 +1591,7 @@
         }).catch(() => {});
 
         // Secondary dispatch: JSON text/plain
-        await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+        await fetch(targetUrl, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
@@ -1911,7 +1913,7 @@
         submittedAt: new Date().toISOString(),
       };
 
-      const submitted = await submitFormToSheets(payload);
+      const submitted = await submitFormToSheets(payload, PARTNER_SHEETS_WEBHOOK_URL);
       console.log('VISORITY 26 PARTNERSHIP APPLICATION', payload);
 
       if (!submitted) {
