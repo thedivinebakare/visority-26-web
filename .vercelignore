@@ -3,3 +3,19 @@ temporary screenshots
 .git
 .vercel
 *.log
+docs
+qa.mjs
+qa-flows.mjs
+screenshot.mjs
+scrape_temp.mjs
+serve.mjs
+CLAUDE.md
+Claude.md.txt
+memory.md
+GoogleSheetsWebhook.gs
+Brand_Assets/00. FOnts/*.zip
+Brand_Assets/03. Base Website Build
+Brand_Assets/04. Copy
+Brand_Assets/Landing_Page_Copy.md
+dist
+backups
