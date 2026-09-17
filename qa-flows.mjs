@@ -13,7 +13,7 @@ try{
   for(const [label,width,height] of [['desktop',1440,1000],['mobile',390,844],['small',360,800],['tablet',768,1024]]){
     await page.setViewport({width,height});await page.goto(base,{waitUntil:'networkidle0'});await page.evaluate(()=>document.fonts.ready);
     await page.screenshot({path:`temporary screenshots/upgrade-${label}-hero.png`});
-    await page.evaluate(async()=>{document.documentElement.style.scrollBehavior='auto';for(let y=0;y<document.body.scrollHeight;y+=700){scrollTo(0,y);await new Promise(r=>setTimeout(r,70));}await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));scrollTo(0,0);});await pause(800);
+    await page.evaluate(async()=>{document.documentElement.style.scrollBehavior='auto';document.querySelectorAll('img').forEach(i=>i.loading='eager');for(let y=0;y<document.body.scrollHeight;y+=700){scrollTo(0,y);await new Promise(r=>setTimeout(r,70));}await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));scrollTo(0,0);});await pause(800);
     const problems=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth-innerWidth,broken:[...document.images].filter(i=>!i.complete||!i.naturalWidth).map(i=>i.src)}));assert.ok(problems.overflow<=1,`${label}: horizontal overflow ${problems.overflow}`);assert.deepEqual(problems.broken,[],`${label}: images`);
     if(label==='desktop'||label==='mobile')await page.screenshot({path:`temporary screenshots/upgrade-${label}-full.png`,fullPage:true});
     console.log(`PASS ${label} homepage: no overflow or broken images`);

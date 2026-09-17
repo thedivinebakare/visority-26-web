@@ -10,7 +10,8 @@
     "shot:tablet": "node screenshot.mjs http://localhost:3000 tablet",
     "qa": "node qa.mjs",
     "build": "node scripts/build-pages.mjs",
-    "qa:flows": "node qa-flows.mjs"
+    "qa:flows": "node qa-flows.mjs",
+    "qa:premium": "node qa-premium.mjs"
   },
   "keywords": [
     "visority",

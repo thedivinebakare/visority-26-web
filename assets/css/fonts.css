@@ -1,6 +1,7 @@
 @font-face {
   font-family: 'Bricolage Grotesque';
   font-style: normal;
+  font-display: swap;
   font-weight: 400;
   font-stretch: normal;
   src: url(/fonts/font-0.woff2) format('truetype');
@@ -8,6 +9,7 @@
 @font-face {
   font-family: 'Bricolage Grotesque';
   font-style: normal;
+  font-display: swap;
   font-weight: 500;
   font-stretch: normal;
   src: url(/fonts/font-1.woff2) format('truetype');
@@ -15,6 +17,7 @@
 @font-face {
   font-family: 'Bricolage Grotesque';
   font-style: normal;
+  font-display: swap;
   font-weight: 600;
   font-stretch: normal;
   src: url(/fonts/font-2.woff2) format('truetype');
@@ -22,6 +25,7 @@
 @font-face {
   font-family: 'Bricolage Grotesque';
   font-style: normal;
+  font-display: swap;
   font-weight: 700;
   font-stretch: normal;
   src: url(/fonts/font-3.woff2) format('truetype');
@@ -29,6 +33,7 @@
 @font-face {
   font-family: 'Bricolage Grotesque';
   font-style: normal;
+  font-display: swap;
   font-weight: 800;
   font-stretch: normal;
   src: url(/fonts/font-4.woff2) format('truetype');
@@ -36,6 +41,7 @@
 @font-face {
   font-family: 'Instrument Sans';
   font-style: normal;
+  font-display: swap;
   font-weight: 400;
   font-stretch: normal;
   src: url(/fonts/font-5.woff2) format('truetype');
@@ -43,6 +49,7 @@
 @font-face {
   font-family: 'Instrument Sans';
   font-style: normal;
+  font-display: swap;
   font-weight: 500;
   font-stretch: normal;
   src: url(/fonts/font-6.woff2) format('truetype');
@@ -50,6 +57,7 @@
 @font-face {
   font-family: 'Instrument Sans';
   font-style: normal;
+  font-display: swap;
   font-weight: 600;
   font-stretch: normal;
   src: url(/fonts/font-7.woff2) format('truetype');
@@ -57,6 +65,7 @@
 @font-face {
   font-family: 'Instrument Sans';
   font-style: normal;
+  font-display: swap;
   font-weight: 700;
   font-stretch: normal;
   src: url(/fonts/font-8.woff2) format('truetype');
