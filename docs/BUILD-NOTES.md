@@ -27,3 +27,14 @@ Focus-field hero, revised proof/story hierarchy, transformation chapters, three 
 ## Checks
 
 Desktop 1440px, tablet 768px and mobile 390px/360px layouts; all routes at mobile size; registration pass choice, validation, Back, Enter, textarea newlines, one request per attempt, transport failure, partner endpoint, legacy registration link, reduced motion and forged payment URL. Tests create no real leads or charges. Two visual screenshot rounds are captured in `temporary screenshots/`.
+
+## Production release
+
+Published at the user's explicit request on 17 September 2026.
+
+- Public URL: `https://visority-26-web.vercel.app`
+- Deployment: `dpl_8p3M6zSqZrY2Kf79dFxq73DXNVSi`
+- Immutable URL: `https://visority-26-6e1lvubl9-thedivinebakares-projects.vercel.app`
+- Source revision: `6d06a87`, branch `codex/visority-experience` (saved on GitHub).
+- Previous production and restoration instructions: `backups/RESTORE.md`.
+- Post-deploy checks: all seven public pages, stylesheet, registration script, responsive portrait and font returned 200 with expected content. Internal plans, source scripts and backup instructions returned 404. No real lead submissions or payments were made by the checks.
