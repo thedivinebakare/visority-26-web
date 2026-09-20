@@ -6,9 +6,9 @@
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('partner-contact'))&&!/^\+[\d\s()-]{7,24}$/.test(v('partner-contact'))){error.textContent='Enter a valid email or a WhatsApp number with its country code.';error.hidden=false;get('partner-contact').focus();return;}
     busy=true;const button=form.querySelector('button[type=submit]');button.disabled=true;button.textContent='SENDING…';
     const payload={source:'partnership_modal',organization:v('partner-org'),partnershipType:v('partner-type'),communitySize:v('partner-reach'),contact:v('partner-contact'),note:v('partner-note'),submittedAt:new Date().toISOString()};
-    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
-    try{const response=await fetch(window.PARTNER_SHEETS_WEBHOOK_URL||'https://script.google.com/macros/s/AKfycbwPwN7HEGUUfGmW2JRLHaxB1h5fbAvY2rwbWD7Ain_9lx0zwFX-4DJ5v9Y8VzvJmEse/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(payload).toString(),signal:controller.signal});if(response.type!=='opaque'&&!response.ok)throw new Error();result.hidden=false;result.textContent='Your enquiry has been sent. We can’t confirm receipt here yet. For a follow-up, email nextgencon01@gmail.com.';button.hidden=true;}
-    catch{error.textContent='We couldn’t confirm delivery. Your details are still here. Please contact nextgencon01@gmail.com before retrying.';error.hidden=false;}
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),25000);
+    try{const response=await fetch('/api/partner-enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:controller.signal});const receipt=await response.json();if(!response.ok||!receipt.saved)throw new Error();result.hidden=false;result.textContent='Your enquiry has been saved. The team will follow up using your contact details.';button.hidden=true;}
+    catch{error.textContent='We couldn’t confirm delivery. Your details are still here. Please contact an Admin on +234 810 653 5169 before retrying.';error.hidden=false;}
     finally{clearTimeout(timer);busy=false;button.disabled=false;button.innerHTML='SEND ENQUIRY <span>↗</span>';}
   });
 })();

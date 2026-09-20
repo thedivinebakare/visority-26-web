@@ -26,15 +26,15 @@
     busy=true;begin();$('reg-submit').disabled=true;$('reg-back').disabled=true;$('reg-submit').textContent='SENDING…';
     const chosen=id=>value(id)==='Other'?value(id+'-other'):value(id);
     const payload={fullName:value('f-name'),email:value('f-email'),role:value('f-role'),whatsApp:value('f-phone'),coreChallenge:chosen('f-challenge'),desiredExperience:chosen('f-expect'),customNote:value('f-note'),selectedTier:tier,submittedAt:new Date().toISOString()};
-    const endpoint=window.GOOGLE_SHEETS_WEBHOOK_URL||'https://script.google.com/macros/s/AKfycbxReGOEQtFDduKP7mDqSrcCaBOl5EJjh3tvxHxeOxT21sEyIcRUeO9L50-9Ah4Ml54z/exec';
-    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),20000);
+    const endpoint='/api/register';
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),25000);
     try{
-      const response=await fetch(endpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(payload).toString(),signal:controller.signal});
-      if(response.type!=='opaque'&&!response.ok)throw new Error('Submission failed');
+      const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:controller.signal});
+      const receipt=await response.json();if(!response.ok||!receipt.saved)throw new Error(receipt.message||'Google Sheets did not confirm receipt.');payload.receiptConfirmed=true;
       try{localStorage.setItem(tier==='vip'?'visority_vip_registration':'visority_standard_registration',JSON.stringify(payload));}catch{}
       form.hidden=true;document.querySelector('.form-progress').hidden=true;const result=$('registration-result');result.hidden=false;$('registration-next').href=tier==='vip'?'/checkout/vip/':'/access/standard-confirmation/';result.focus();
-      // Opaque Apps Script responses acknowledge transport, not receipt. Do not emit registration_completed.
-    }catch(err){error(err.name==='AbortError'?'This is taking longer than expected. Your submission may have arrived. Contact the team before retrying to avoid registering twice.':'We couldn’t send your details. Your answers are still here. Check your connection and try again.');}
+      result.querySelector('h2').textContent='Registration confirmed.';result.querySelector('p').textContent='Your details have been saved. Continue to your next steps.';window.visorityTrack?.('registration_completed');location.assign($('registration-next').href);
+    }catch(err){error(err.name==='AbortError'?'This is taking longer than expected. Your submission may have arrived. Contact the team before retrying to avoid registering twice.':(err.message||'We couldn’t confirm your registration. Your answers are still here.'));}
     finally{clearTimeout(timeout);busy=false;$('reg-submit').disabled=false;$('reg-back').disabled=false;$('reg-submit').innerHTML='SEND REGISTRATION <span>↗</span>';}
   });
 })();

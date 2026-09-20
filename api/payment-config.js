@@ -1,0 +1,2 @@
+const {json}=require('../server/payment.cjs');
+module.exports=(req,res)=>json(res,200,{testMode:process.env.PAYSTACK_SECRET_KEY?.startsWith('sk_test_')===true,onlineReady:!!(process.env.PAYSTACK_SECRET_KEY&&process.env.FUNNEL_SESSION_SECRET&&process.env.PUBLIC_SITE_URL),internationalEnabled:process.env.PAYSTACK_INTERNATIONAL_ENABLED==='true',manualReady:process.env.MANUAL_PAYMENTS_ENABLED==='true',bank:{name:process.env.TRANSFER_BANK||'Kuda',holder:process.env.TRANSFER_HOLDER||'Victor Maji',number:process.env.TRANSFER_NUMBER||'2015946586'}});

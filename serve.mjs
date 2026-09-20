@@ -1,10 +1,13 @@
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
-const PORT = 3000;
+try { process.loadEnvFile(join(ROOT, '.env')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+const PORT = Number(process.env.PORT || 3000);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -33,6 +36,8 @@ const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://localhost:${PORT}`);
     let pathname = decodeURIComponent(url.pathname);
+    if(pathname.startsWith('/api/')) {const route=pathname.slice(5);if(!['payment-config','initialize-payment','verify-payment','register','partner-enquiry'].includes(route)){res.writeHead(404).end();return;}await require('./api/'+route+'.js')(req,res);return;}
+    if(/^\/(server|\.env|\.git)(\/|$|\.)/.test(pathname)){res.writeHead(404).end();return;}
     if (pathname.endsWith('/')) pathname += 'index.html';
 
     const filePath = normalize(join(ROOT, pathname));
