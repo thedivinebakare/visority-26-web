@@ -5,6 +5,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
+try { process.loadEnvFile(join(ROOT, '.env')); } catch {}
 const OUT_DIR = join(ROOT, 'temporary screenshots');
 
 const EDGE_PATHS = [
@@ -18,10 +19,11 @@ function findBrowser() {
   return EDGE_PATHS.find((p) => existsSync(p)) || null;
 }
 
-const url = process.argv[2] || 'http://localhost:3000';
-const label = process.argv[3] || '';
-const isMobile = /mobile|phone|390/i.test(process.argv.slice(2).join(' '));
-const isTablet = /tablet|768|ipad/i.test(process.argv.slice(2).join(' '));
+const args=process.argv.slice(2);
+const url= args.find(a=>/^https?:\/\//.test(a)) || `http://localhost:${process.env.PORT||3000}`;
+const label= args.find(a=>!/^https?:\/\//.test(a)) || '';
+const isMobile = /mobile|phone|390/i.test(args.join(' '));
+const isTablet = /tablet|768|ipad/i.test(args.join(' '));
 
 const viewport = isMobile
   ? { width: 390, height: 844, deviceScaleFactor: 2 }

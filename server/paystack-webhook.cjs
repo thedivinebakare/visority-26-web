@@ -1,4 +1,5 @@
 const referrals=require('./referrals.cjs');
+const coupons=require('./coupons.cjs');
 const {json,verifyPaystackSignature,rawBody,isPremiumCharge,paystack}=require('./payment.cjs');
 const {log}=require('./sheets.cjs');
 module.exports=async(req,res)=>{if(req.method!=='POST')return json(res,405,{message:'Use POST.'});let body;
@@ -8,8 +9,10 @@ try{
 const verified=await paystack('/transaction/verify/'+encodeURIComponent(reference));
 if(!isPremiumCharge(verified)||verified.reference!==reference||verified.metadata?.event!=='visority26'||verified.customer?.email?.toLowerCase()!==data.customer.email.toLowerCase())return json(res,409,{message:'Payment details do not match.'});
 const name=typeof verified.metadata?.fullName==='string'?verified.metadata.fullName.slice(0,120):'';
+const code=typeof verified.metadata?.couponCode==='string'?verified.metadata.couponCode.slice(0,40):'';
+const note=`Paystack charge.success · ${reference} · ${verified.domain} · ${coupons.naira(verified.amount)}`+(code?` · code ${code}`:'');
 // At-least-once audit delivery; reconcile duplicates by reference. Paystack remains the payment source of truth.
-const saved=await log('payment-confirmed',{fullName:name,email:verified.customer.email,role:'PREMIUM / VERIFIED',customNote:`Paystack charge.success · ${reference} · ${verified.domain} · ₦5,000`,selectedTier:'vip'});
+const saved=await log('payment-confirmed',{fullName:name,email:verified.customer.email,role:'PREMIUM / VERIFIED',customNote:note,selectedTier:'vip'});
 if(!saved)return json(res,503,{message:'Payment notification will be retried.'});
 if(verified.metadata?.referralCode)await referrals.record('premium',{code:verified.metadata.referralCode,email:verified.customer.email,reference,domain:verified.domain});
 return json(res,200,{received:true});

@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const out=resolve(root,'dist');
 await mkdir(out,{recursive:true});
-for(const path of ['index.html','register','partners','ambassadors','checkout','access','vip','assets','fonts']){
+for(const path of ['index.html','register','partners','ambassadors','skill-fund','checkout','access','vip','assets','fonts']){
   await cp(resolve(root,path),resolve(out,path),{recursive:true});
 }
 // Inter Tight remains the local fallback. Keep its existing URL without publishing the source asset archive.

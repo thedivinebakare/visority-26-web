@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdir,mkdtemp} from 'node:fs/promises';
 const server=spawn(process.execPath,['serve.mjs'],{env:{...process.env,PORT:'3012'},stdio:'ignore',windowsHide:true});
-const base='http://localhost:3012';let browser;
+const base='http://localhost:'+(process.env.PORT||3001);let browser;
 try{
 for(let i=0;i<40;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));}
 await mkdir('temporary screenshots',{recursive:true});

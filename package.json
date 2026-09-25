@@ -6,8 +6,8 @@
   "scripts": {
     "serve": "node serve.mjs",
     "shot": "node screenshot.mjs",
-    "shot:mobile": "node screenshot.mjs http://localhost:3000 mobile",
-    "shot:tablet": "node screenshot.mjs http://localhost:3000 tablet",
+    "shot:mobile": "node screenshot.mjs mobile",
+    "shot:tablet": "node screenshot.mjs tablet",
     "qa": "node qa.mjs",
     "build": "node scripts/build-pages.mjs",
     "qa:flows": "node qa-flows.mjs",
