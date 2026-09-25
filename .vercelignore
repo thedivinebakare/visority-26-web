@@ -8,6 +8,8 @@ qa.mjs
 qa-flows.mjs
 screenshot.mjs
 scrape_temp.mjs
+debug-*.mjs
+debug-*.png
 serve.mjs
 CLAUDE.md
 Claude.md.txt
