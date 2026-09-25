@@ -1,0 +1,1 @@
+Promise.all(['https://www.visoritylive.com/','https://visoritylive.com/'].map(async url=>{try{const r=await fetch(url,{signal:AbortSignal.timeout(15000)});console.log(JSON.stringify({url,status:r.status,final:r.url}));}catch(e){console.log(JSON.stringify({url,error:e.cause?.code||e.message}));}}));

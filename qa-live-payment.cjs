@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict');
+const crypto=require('node:crypto');
+const fs=require('node:fs');
+process.env.PAYSTACK_SECRET_KEY='sk_live_mock';
+process.env.FUNNEL_SESSION_SECRET='local-test-session-secret-with-32-characters';
+process.env.PUBLIC_SITE_URL='https://www.visoritylive.com';
+const payment=require('./server/payment.cjs');
+const webhook=require('./server/paystack-webhook.cjs');
+const recover=require('./api/recover-access.js');
+const initialize=require('./api/initialize-payment.js');
+const transaction={status:'success',amount:500000,currency:'NGN',domain:'live',reference:'viso26-12345678-abcdef',customer:{email:'qa@example.invalid'},metadata:{event:'visority26',fullName:'QA User'}};
+async function call(handler,req){const headers={};let output;await handler(req,{setHeader(k,v){headers[k]=v;},end(v){output={status:this.statusCode,data:JSON.parse(v),headers};}});return output;}
+async function event(data=transaction,signature){const body=Buffer.from(JSON.stringify({event:'charge.success',data}));return call(webhook,{method:'POST',headers:{'x-paystack-signature':signature??crypto.createHmac('sha512',process.env.PAYSTACK_SECRET_KEY).update(body).digest('hex')},body});}
+(async()=>{
+assert(payment.onlineReady());assert(payment.originAllowed({headers:{origin:'https://visoritylive.com'}}));assert(!payment.originAllowed({headers:{origin:'https://evil.example'}}));
+assert.match(fs.readFileSync('dist/access/recover/index.html','utf8'),/id="recover-reference" required/);
+let saves=0,saveOK=false;global.fetch=async url=>String(url).startsWith('https://api.paystack.co')?{ok:true,json:async()=>({status:true,data:transaction})}:{ok:true,text:async()=>{saves++;return JSON.stringify({result:saveOK?'success':'error'});}};
+assert.equal((await event(transaction,'0'.repeat(128))).status,401);
+assert.equal((await event({...transaction,amount:1})).data.ignored,true);
+assert.equal((await event({...transaction,domain:'test'})).data.ignored,true);
+assert.equal((await event()).status,503);saveOK=true;assert.equal((await event()).status,200);assert.equal(saves,2);
+assert.equal((await call(recover,{method:'POST',headers:{},body:{email:transaction.customer.email}})).status,400);
+let result=await call(recover,{method:'POST',headers:{},body:{email:transaction.customer.email,reference:transaction.reference}});assert.equal(result.data.status,'verified');assert.match(result.headers['Set-Cookie'],/HttpOnly.*Domain=visoritylive.com; Secure/);
+let initialized;global.fetch=async(url,options)=>{initialized=JSON.parse(options.body);return {ok:true,json:async()=>({status:true,data:{authorization_url:'https://checkout.paystack.com/qa'}})};};
+result=await call(initialize,{method:'POST',headers:{origin:'https://visoritylive.com'},body:{name:'QA User',email:'qa@example.invalid'}});assert.equal(result.status,200);assert.equal(initialized.callback_url,'https://www.visoritylive.com/vip/thank-you/');assert.equal(initialized.amount,500000);assert.match(result.headers['Set-Cookie'],/Secure/);
+console.log('PASS live config, origins, canonical callback, secure cookie, webhook signature/amount/domain, failed-save retry, and recovery reference requirement.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,5 +1,5 @@
 (() => {
-  const allowed=new Set(['hero_cta_click','ticket_section_view','standard_selected','premium_selected','registration_started','registration_completed','partner_click']);
+  const allowed=new Set(['hero_cta_click','ticket_section_view','standard_selected','premium_selected','registration_started','registration_completed','partner_click','ambassador_whatsapp_click','ambassador_copy']);
   window.visorityTrack=(event)=>{if(!allowed.has(event))return;window.dispatchEvent(new CustomEvent('visority:analytics',{detail:{event}}));if(typeof window.plausible==='function')window.plausible(event);};
   document.addEventListener('click',e=>{const target=e.target.closest('[data-track]');if(target)window.visorityTrack(target.dataset.track);});
   const pricing=document.querySelector('#pricing');

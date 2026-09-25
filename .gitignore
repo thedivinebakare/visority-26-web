@@ -11,3 +11,8 @@ backups/*.zip
 
 backups/speaker-release/
 
+debug-*.mjs
+debug-*.png
+scrape_temp.mjs
+
+

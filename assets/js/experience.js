@@ -16,7 +16,7 @@
     for(const el of document.querySelectorAll('.hero,#pricing,#schedule,.site-footer'))watch.observe(el);
     document.addEventListener('visority:dialog',updateDock);
     const sections=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){document.querySelectorAll('#main-nav a[aria-current]').forEach(a=>a.removeAttribute('aria-current'));document.querySelector(`#main-nav a[href="/#${e.target.id}"]`)?.setAttribute('aria-current','location');}},{rootMargin:'-15% 0px -65% 0px',threshold:0});
-    document.querySelectorAll('#experience,#speakers,#schedule,#pricing,#ambassador-program').forEach(el=>sections.observe(el));
+    document.querySelectorAll('#experience,#speakers,#schedule,#pricing,#ambassador-program,#skill-fund').forEach(el=>sections.observe(el));
   }
   const pause=document.querySelector('.marquee-pause');pause?.addEventListener('click',()=>{const paused=pause.getAttribute('aria-pressed')!=='true';pause.setAttribute('aria-pressed',String(paused));pause.textContent=paused?'Resume motion ↗':'Pause motion Ⅱ';document.querySelector('.audience').classList.toggle('paused',paused);});
   let dialogTrigger=null;

@@ -29,6 +29,7 @@
     const endpoint='/api/register';
     const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),25000);
     try{
+      await window.visorityReferralReady;
       const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:controller.signal});
       const receipt=await response.json();if(!response.ok||!receipt.saved)throw new Error(receipt.message||'Google Sheets did not confirm receipt.');payload.receiptConfirmed=true;
       try{localStorage.setItem(tier==='vip'?'visority_vip_registration':'visority_standard_registration',JSON.stringify(payload));}catch{}

@@ -36,7 +36,7 @@ const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://localhost:${PORT}`);
     let pathname = decodeURIComponent(url.pathname);
-    if(pathname.startsWith('/api/')) {const route=pathname.slice(5);if(!['payment-config','initialize-payment','verify-payment','register','partner-enquiry'].includes(route)){res.writeHead(404).end();return;}await require('./api/'+route+'.js')(req,res);return;}
+    if(pathname.startsWith('/api/')) {const route=pathname.slice(5);if(!['referral','payment-config','initialize-payment','verify-payment','register','partner-enquiry','paystack-webhook','recover-access'].includes(route)){res.writeHead(404).end();return;}await require(route==='paystack-webhook'?'./server/paystack-webhook.cjs':'./api/'+route+'.js')(req,res);return;}
     if(/^\/(server|\.env|\.git)(\/|$|\.)/.test(pathname)){res.writeHead(404).end();return;}
     if (pathname.endsWith('/')) pathname += 'index.html';
 
