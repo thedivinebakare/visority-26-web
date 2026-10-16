@@ -15,7 +15,7 @@ assert.equal(coupons.resolve(undefined),null);
 assert.equal(coupons.resolve({}),null);
 assert.deepEqual([...coupons.validAmounts()].sort((a,b)=>a-b),[HALF,FULL]);
 // --- amount allowlist is the only way a charge is accepted ---
-for(const good of [FULL,HALF])assert.equal(isPremiumCharge({status:'success',amount:good,currency:'NGN',domain:'test'}),true,`${good} should be a valid premium charge`);
+for(const good of [FULL,HALF])assert.equal(isPremiumCharge({status:'success',amount:good,currency:'NGN',domain:'test',metadata:{couponCode:good===HALF?'CATERSTUDIOS':''}}),true,`${good} should be a valid premium charge`);
 for(const bad of [1,249999,250001,HALF-100,FULL+1,0,NaN,'500000',null,undefined])assert.equal(isPremiumCharge({status:'success',amount:bad,currency:'NGN',domain:'test'}),false,`${bad} must be rejected`);
 assert.equal(coupons.isValidAmount(500000.5),false);
 // --- verify: missing session ---
@@ -36,7 +36,7 @@ data.customer.email=legacy.email;
 // --- verify: discounted order unlocks on the discounted amount ---
 const half={reference:'viso26-half',email:'test@example.test',name:'Test Builder',amount:HALF,coupon:'CATERSTUDIOS',exp:Date.now()+100000};
 const halfCookie='visority_order='+encodeURIComponent(sign(half));
-const halfData={status:'success',reference:half.reference,amount:HALF,currency:'NGN',customer:{email:half.email},domain:'test'};
+const halfData={status:'success',reference:half.reference,amount:HALF,currency:'NGN',customer:{email:half.email},domain:'test',metadata:{couponCode:'CATERSTUDIOS'}};
 global.fetch=async()=>({ok:true,json:async()=>({status:true,data:halfData})});
 r=await call(verify,{method:'GET',headers:{cookie:halfCookie}});assert.equal(r.body.status,'test');
 // --- verify: price swap between order and provider is refused ---

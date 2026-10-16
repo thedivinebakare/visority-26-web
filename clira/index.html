@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#401b25">
+<title>Clira · Visority lead desk</title>
+<link rel="icon" href="/assets/images/visority-icon.png"><link rel="stylesheet" href="/assets/css/fonts.css"><link rel="stylesheet" href="/assets/css/clira.css">
+<script src="/assets/js/clira-model.js" defer></script><script src="/assets/js/clira.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to leads</a>
+<div id="workspace">
+<aside class="rail">
+<a href="/" class="brand" aria-label="Visority home"><img src="/assets/images/visority-official.webp" alt="Visority 26" width="92" height="54"></a>
+<div class="desk-name">Clira<span>Your private lead desk</span></div>
+<nav aria-label="Workspace"><button data-view="leads" aria-current="page"><span aria-hidden="true">≡</span> Leads</button><button data-view="followups"><span aria-hidden="true">↗</span> Follow-ups <b id="queue-count">0</b></button></nav>
+<div class="rail-bottom"><span>VISORITY '26</span><small>Good conversations<br>start with listening.</small><button id="lock">Lock workspace ↗</button></div>
+</aside>
+<main id="main">
+<header class="topline"><span>LEAD FOLLOW-UP</span><div><span id="sync">Not synced yet</span><button id="refresh" class="quiet">Refresh leads ↻</button></div></header>
+<section class="intro"><h1 id="heading">Your leads.<br><span>Keep the conversation moving.</span></h1><p id="intro-copy">See who registered, understand what they need, and follow up while the conversation is still warm.</p></section>
+<div id="stats" class="stats" aria-label="Lead summary"></div>
+<div id="error" class="notice error" role="alert" hidden><span id="error-text"></span> <button id="retry" class="quiet">Try again</button></div>
+<p id="demo" class="notice" hidden>Preview data · These are sample leads. Changes stay in this session.</p>
+<section class="lead-workspace" aria-label="Leads">
+<div class="tools">
+  <label class="search"><span class="sr-only">Search name, email or phone</span><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search name, email or phone" autocomplete="off"></label>
+  <div id="filters" class="filters" aria-label="Filter by status"></div>
+</div>
+<div id="segment-bar" class="segment-bar" aria-label="Filter by pass type" role="group"></div>
+<div class="list-caption"><span id="list-count" aria-live="polite">Your conversations</span><span>SELECT A LEAD TO FOLLOW UP</span></div>
+<div class="list-head" aria-hidden="true"><span>Lead</span><span>Role</span><span>Pass</span><span>Status</span><span></span></div>
+<div id="rows" aria-busy="false"></div>
+<div id="empty" class="empty" hidden><h2 id="empty-title">No leads yet</h2><p id="empty-copy">New registrations will appear here.</p></div>
+</section>
+<footer>Clira <span>·</span> A little attention goes a long way.</footer>
+</main>
+</div>
+<dialog id="auth" class="auth" aria-labelledby="auth-title"><form id="auth-form"><span class="eyebrow">VISORITY '26 · CLIRA</span><h2 id="auth-title">Welcome to<br>the lead desk.</h2><p>A private space for better conversations.</p><label for="key">Access key</label><input id="key" type="password" required autocomplete="current-password"><p id="auth-error" class="error-text" role="alert"></p><button class="primary" id="unlock">Unlock workspace ↗</button></form></dialog>
+<dialog id="detail" class="detail" aria-labelledby="lead-name">
+<header class="detail-top"><span>LEAD DETAILS</span><button id="close-detail" class="icon-button" aria-label="Close lead details">×</button></header>
+<div class="detail-body">
+<div class="person"><span id="avatar" class="avatar" aria-hidden="true"></span><div><h2 id="lead-name"></h2><p id="lead-meta"></p></div></div>
+<div id="lead-segment-badge" class="segment-badge" aria-live="polite"></div>
+<dl class="contact"><div><dt>Email</dt><dd id="lead-email"></dd></div><div><dt>WhatsApp</dt><dd id="lead-phone"></dd></div><div><dt>Registered on</dt><dd id="lead-date"></dd></div><div><dt>Current status</dt><dd id="lead-current-status"></dd></div></dl>
+<p id="summary" class="summary"></p>
+<section class="answers"><h3>What we know</h3><dl id="answers"></dl></section>
+<section class="message-section"><div class="section-line"><label for="message">Suggested follow-up</label><button id="regenerate" class="quiet">Regenerate ↻</button></div>
+<p id="upsell-hint" class="upsell-hint" hidden>✦ Upsell angle included — use Regenerate to cycle variants.</p>
+<textarea id="message" rows="6" maxlength="4000"></textarea><div class="message-meta"><span>Make it yours before sending.</span><button id="copy" class="quiet">Copy</button></div></section>
+<section class="tracking"><label for="status">Status</label><select id="status"><option value="New">New</option><option value="Follow Up">Follow-up</option><option value="Contacted">Contacted</option><option value="Interested">Interested</option><option value="Registered">Registered</option><option value="Not Interested">Not Interested</option></select><label for="note">Internal note</label><textarea id="note" rows="2" maxlength="1000" placeholder="Add a short note for the team…"></textarea><div class="save-line"><button id="save" class="secondary">Save changes</button><span id="save-state" role="status"></span></div></section>
+</div>
+<div class="detail-bottom"><button id="whatsapp" class="primary">Follow up on WhatsApp ↗</button><p id="wa-help">Opens a draft. You choose when to send.</p></div>
+</dialog>
+<div id="toast" class="toast" role="status" hidden></div>
+</body></html>

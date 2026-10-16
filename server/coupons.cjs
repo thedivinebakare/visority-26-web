@@ -10,4 +10,5 @@ function resolve(code){const key=normalise(code);if(!key)return null;const rule=
 const validAmounts=()=>[...new Set([FULL_PRICE,...Object.values(RULES).map(r=>priceFor(r.percent))])];
 const isValidAmount=amount=>Number.isInteger(amount)&&validAmounts().includes(amount);
 const naira=amount=>'₦'+(Number(amount||0)/100).toLocaleString('en-NG',{maximumFractionDigits:2});
-module.exports={FULL_PRICE,RULES,resolve,validAmounts,isValidAmount,naira};
+function matchesCharge(t){const code=t?.metadata?.couponCode;const applied=code?resolve(code):null;return Number.isInteger(t?.amount)&&t.amount===(applied?applied.amount:FULL_PRICE)&&(!code||!!applied);}
+module.exports={matchesCharge,FULL_PRICE,RULES,resolve,validAmounts,isValidAmount,naira};

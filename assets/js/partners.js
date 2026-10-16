@@ -12,3 +12,5 @@
     finally{clearTimeout(timer);busy=false;button.disabled=false;button.innerHTML='SEND ENQUIRY <span>↗</span>';}
   });
 })();
+
+if(new URLSearchParams(location.search).get('type')==='skill-fund'){const select=document.getElementById('partner-type');if(select)select.value='Skill Fund Partner';}
