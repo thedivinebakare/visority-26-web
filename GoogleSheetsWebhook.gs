@@ -92,7 +92,7 @@ function cliraFindRow(sheet, email, rowNumber) {
   if (!wanted) return { ok: false, error: 'A lead email is required.' };
   if (emailColumn === -1) return { ok: false, error: 'No Email column was found in row 1.' };
 
-  var values = sheet.getRange(2, emailColumn, lastRow - 1, 1).getValues();
+  var values = sheet.getRange(2, emailColumn + 1, lastRow - 1, 1).getValues();
   var matches = [];
   for (var i = 0; i < values.length; i++) {
     if (String(values[i][0]).trim().toLowerCase() === wanted) matches.push(i + 2);
