@@ -71,9 +71,28 @@ function authorised(req) {
   return crypto.timingSafeEqual(a, b);
 }
 
+/* Demo-only in-memory overlay. Without a sheet connector a save cannot reach a
+ * spreadsheet, so status/note changes are kept here so a refresh during local
+ * preview still shows what was saved. Production writes always go to the sheet. */
+const demoOverrides = new Map();
+
+function demoKey(lead) {
+  const email = String(lead.email || '').trim().toLowerCase();
+  if (email) return 'email:' + email;
+  const row = Number(lead.rowNumber);
+  return row > 0 ? 'row:' + row : '';
+}
+
 function demoPayload() {
   const file = readFileSync(join(ROOT, 'clira', 'sample-leads.json'), 'utf8');
-  return { ...JSON.parse(file), columns: Object.values(columns).filter(Boolean) };
+  const data = JSON.parse(file);
+  for (const lead of data.leads || []) {
+    const override = demoOverrides.get(demoKey(lead));
+    if (!override) continue;
+    if (override.status) lead.status = override.status;
+    if (override.note !== undefined) lead.note = override.note;
+  }
+  return { ...data, columns: Object.values(columns).filter(Boolean) };
 }
 
 /* Maps a raw sheet row (keyed by header text) onto the Clira field names.
@@ -165,9 +184,10 @@ async function handleRead(req, res) {
 }
 
 async function handleUpdate(req, res, input) {
-  const email = String(input.email || '').trim();
+  const email = String(input.email || '').trim().toLowerCase();
   const status = String(input.status || '').trim();
   const note = String(input.note || '').trim();
+  const rowNumber = Number.parseInt(String(input.rowNumber == null ? '' : input.rowNumber), 10);
 
   if (!email) return json(res, 400, { error: 'A lead email is required.' });
   if (status && !STATUSES.includes(status)) {
@@ -181,14 +201,26 @@ async function handleUpdate(req, res, input) {
 
   const url = sheetsUrl();
   if (!url) {
+    const key = demoKey({ email });
+    if (key) {
+      const previous = demoOverrides.get(key) || {};
+      if (status) previous.status = status;
+      if (note) previous.note = note;
+      demoOverrides.set(key, previous);
+    }
     return json(res, 200, { ...demoPayload(), savedLocally: true, row: 0 });
   }
+
+  /* Prefer the stable sheet row number; the Apps Script still verifies it
+   * against the email so a stale row can never overwrite the wrong lead. */
+  const payload = { action: 'update', key: accessKey(), email, status, note };
+  if (Number.isInteger(rowNumber) && rowNumber > 0) payload.rowNumber = rowNumber;
 
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Clira-Key': accessKey() },
-      body: JSON.stringify({ action: 'update', key: accessKey(), email, status, note }),
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(20000),
       redirect: 'follow',
     });

@@ -11,6 +11,11 @@ const state={leads:[],filter:'All',segment:'All',view:'leads',query:'',selected:
 
 function el(tag,cls,content){const n=document.createElement(tag);if(cls)n.className=cls;if(content!==undefined)n.textContent=content;return n;}
 const lid=l=>String(l.rowNumber||l.email||state.leads.indexOf(l));
+/* Normalised email is only ever a fallback identifier — trim + lowercase so
+ * "Divine@gmail.com" and "divine@gmail.com " resolve to the same lead. */
+const leadEmail=l=>M.text(l.email).toLowerCase();
+/* Stable identifier when the sheet exposes a row number (preferred over email). */
+const leadRow=l=>{const n=Number(l.rowNumber);return Number.isInteger(n)&&n>0?n:0;};
 const date=v=>{const d=new Date(v);return v&&!isNaN(d)?d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Not provided';};
 function setKey(v){key=v;try{v?sessionStorage.setItem(store,v):sessionStorage.removeItem(store);}catch{}}
 
@@ -52,7 +57,7 @@ function matchesSegment(l){
   return M.segment(l.ticket)===state.segment;
 }
 function matchesQuery(l){
-  const q=state.query.toLowerCase();
+  const q=M.text(state.query).toLowerCase();
   if(!q) return true;
   return [l.name,l.email,l.phone].some(x=>M.text(x).toLowerCase().includes(q));
 }
@@ -261,7 +266,8 @@ $('whatsapp').onclick=()=>{
 
 $('save').onclick=async()=>{
   if(state.saving||!state.selected)return;
-  const l=state.selected,d=draft(l),payload={action:'update',email:l.email};
+  const l=state.selected,d=draft(l),payload={action:'update',email:leadEmail(l)};
+  if(leadRow(l))payload.rowNumber=leadRow(l);
   if(d.status!==M.status(l.status))payload.status=d.status;
   if(d.note.trim()!==M.text(l.note)){if(!d.note.trim()){$('save-state').textContent='To replace the saved note, enter a short note.';return;}payload.note=d.note.trim();}
   if(!payload.status&&!payload.note){$('save-state').textContent='No changes to save.';return;}
@@ -275,12 +281,18 @@ $('save').onclick=async()=>{
     if(payload.note!==undefined)l.note=payload.note;
     $('lead-current-status').textContent=M.label(l.status);
     $('save-state').textContent=result.savedLocally?'Saved in this preview session.':'Saved to Google Sheets.';
+    $('save').textContent='Saved';
+    setTimeout(()=>{if($('save').textContent==='Saved')$('save').textContent='Save changes';},1600);
     render();
-  }catch(e){$('save-state').textContent=e.message;}
+  }catch(e){
+    /* Keep the raw sheet/connector detail for developers, show the user a short line. */
+    console.error('Clira save failed:',e);
+    $('save-state').textContent=e.status===409?'Could not update this lead. Refresh and try again.':(e.message||'Could not save. Try again.');
+  }
   finally{
     state.saving=false;
     for(const x of ['save','status','note','close-detail'])$(x).disabled=false;
-    $('save').textContent='Save changes';
+    if($('save').textContent!=='Saved')$('save').textContent='Save changes';
   }
 };
 

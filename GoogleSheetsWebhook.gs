@@ -66,20 +66,30 @@ function cliraJSON(data) {
 }
 
 /**
- * Finds the single row matching an email address, case-insensitively.
+ * Finds the single row matching a lead. Prefers the stable sheet row number
+ * supplied by doGet (verified against the email so a stale row can never write
+ * to the wrong registrant), then falls back to a case-insensitive email match.
  * Returns { ok, row } or { ok:false, error } — ambiguity is always reported
  * rather than guessed, because writing to the wrong registrant is not
  * recoverable from the dashboard.
  */
-function cliraFindRow(sheet, email) {
+function cliraFindRow(sheet, email, rowNumber) {
   var wanted = String(email || '').trim().toLowerCase();
-  if (!wanted) return { ok: false, error: 'A lead email is required.' };
-
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) return { ok: false, error: 'The sheet has no lead rows yet.' };
 
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   var emailColumn = cliraHeaderIndex(headers, ['email', 'e-mail', 'email address']);
+
+  /* Preferred identifier: the true sheet row number from doGet. Verified
+   * against the email cell so blank/shifted data never overwrites a stranger. */
+  var candidate = parseInt(rowNumber, 10);
+  if (candidate >= 2 && candidate <= lastRow && emailColumn !== -1) {
+    var cell = String(sheet.getRange(candidate, emailColumn + 1).getValue()).trim().toLowerCase();
+    if (cell && cell === wanted) return { ok: true, row: candidate };
+  }
+
+  if (!wanted) return { ok: false, error: 'A lead email is required.' };
   if (emailColumn === -1) return { ok: false, error: 'No Email column was found in row 1.' };
 
   var values = sheet.getRange(2, emailColumn, lastRow - 1, 1).getValues();
@@ -159,8 +169,10 @@ function doGet(e) {
     var values = sheet.getRange(1, 1, lastRow, lastColumn).getValues();
     var columns = values[0].map(function (cell) { return String(cell).trim(); });
     var rows = values.slice(1)
-      .map(function (row) {
-        var lead = { rowNumber: 0 };
+      .map(function (row, offset) {
+        /* offset + 2 is the true sheet row — captured before blank rows are
+         * filtered so it stays valid for the write-back path. */
+        var lead = { rowNumber: offset + 2 };
         columns.forEach(function (column, index) {
           if (!column) return;
           lead[column] = row[index] instanceof Date
@@ -175,8 +187,6 @@ function doGet(e) {
           return key !== 'rowNumber' && lead[key];
         });
       });
-
-    rows.forEach(function (lead, index) { lead.rowNumber = index + 2; });
 
     return cliraJSON({
       ok: true,
@@ -207,7 +217,7 @@ function cliraUpdate(payload) {
     return { ok: false, error: 'No Clira columns found. Run setupCliraColumns() first.' };
   }
 
-  var found = cliraFindRow(sheet, payload.email);
+  var found = cliraFindRow(sheet, payload.email, payload.rowNumber);
   if (!found.ok) return found;
 
   var row = found.row;
