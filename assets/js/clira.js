@@ -136,18 +136,16 @@ function render(){
   /* Ambassador counts and summary */
   const ambSummary=$('ambassador-summary');
   if(ambSummary){
-    const counts={VSR001:0,VSR002:0,VSR003:0,Direct:0};
+    const registryEntries=Object.entries(M.ambassadors||{}).filter(([_,a])=>a.active);
+    const counts={Direct:0};
+    for(const [code] of registryEntries) counts[code]=0;
     for(const l of state.leads){
       const ref=M.getLeadReferral(l);
       if(ref.type==='ambassador'&&counts[ref.code]!==undefined) counts[ref.code]++;
       else if(ref.type==='direct') counts.Direct++;
     }
-    const items=[
-      ['VSR001','Eniola',counts.VSR001],
-      ['VSR002','Deborah',counts.VSR002],
-      ['VSR003','Divine',counts.VSR003],
-      ['Direct','Direct',counts.Direct],
-    ];
+    const items=registryEntries.map(([code,a])=>[code,a.name,counts[code]||0]);
+    items.push(['Direct','Direct',counts.Direct]);
     ambSummary.replaceChildren(
       el('span','ambassador-summary-title','Ambassador referrals'),
       ...items.map(([code,name,count])=>{
@@ -161,8 +159,24 @@ function render(){
     );
   }
   const ambFilter=$('ambassador-filter');
-  if(ambFilter&&ambFilter.value!==state.ambassador){
-    ambFilter.value=state.ambassador;
+  if(ambFilter){
+    const currentCodes=Object.keys(M.ambassadors||{}).join(',');
+    if(ambFilter.dataset.registry!==currentCodes){
+      const opts=[
+        {code:'All',label:'All ambassadors'},
+        ...Object.entries(M.ambassadors||{}).filter(([_,a])=>a.active).map(([code,a])=>({code,label:`${a.name} · ${code}`})),
+        {code:'Direct',label:'Direct / No referral'}
+      ];
+      ambFilter.replaceChildren(...opts.map(o=>{
+        const opt=el('option','',o.label);
+        opt.value=o.code;
+        return opt;
+      }));
+      ambFilter.dataset.registry=currentCodes;
+    }
+    if(ambFilter.value!==state.ambassador){
+      ambFilter.value=state.ambassador;
+    }
   }
 
   /* Lead rows */

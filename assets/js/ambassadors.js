@@ -1,1 +1,22 @@
-(() => {const input=document.getElementById('ref-link-input');if(!input)return;const copy=document.getElementById('copy-ref');const status=document.getElementById('ref-feedback');if(!copy||!status)return;const url=new URL('https://www.visoritylive.com/');url.searchParams.set('ref','ambassador');input.value=url.href;const original=copy.textContent;let timer=null;const reset=()=>{clearTimeout(timer);copy.textContent=original;copy.classList.remove('is-copied');status.textContent='';};const copyLink=async()=>{clearTimeout(timer);try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw new Error('unavailable');await navigator.clipboard.writeText(input.value);copy.textContent='COPIED · SHARE IT ↗';copy.classList.add('is-copied');status.textContent='Link copied. Share it with your people.';if(typeof window.visorityTrack==='function')window.visorityTrack('ambassador_copy');}catch{input.focus();input.select();status.textContent='Select and copy the link above to share it.';timer=setTimeout(reset,4000);return;}timer=setTimeout(reset,2600);};copy.addEventListener('click',copyLink);copy.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();copyLink();}});})();
+// Single source of truth for vanity-code attribution.
+(function (root) {
+  const ambassadors = {
+    VSR001: { name: 'Israelchima', active: true },
+    VSR002: { name: 'MsDebs', active: true },
+    VSR003: { name: 'Chiamaka Ajuzie', active: true },
+    VSR004: { name: 'Special', active: true },
+  };
+
+  function resolve(code) {
+    const canonical = typeof code === 'string' ? code.trim().toUpperCase() : '';
+    const entry = /^VSR\d{3}$/.test(canonical) && ambassadors[canonical];
+    return entry?.active ? { code: canonical, name: entry.name } : null;
+  }
+
+  const exp = { ambassadors, resolve };
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = exp;
+  } else {
+    root.VisorityAmbassadors = exp;
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this);
