@@ -43,6 +43,8 @@ const columns = {
   challenge: 'coreChallenge',
   goal: 'desiredExperience',
   reason: 'customNote',
+  referralCode: 'Referral Code',
+  ambassadorName: 'Ambassador',
 };
 
 const accessKey = () => process.env.CLIRA_ACCESS_KEY || '';
@@ -104,6 +106,8 @@ function mapRow(row) {
     challenge: ['Current Problems', 'Biggest challenge'],
     goal: ['Desired Experience', 'Desired Result', 'What they want'],
     reason: ['Why Visority', 'Reason for joining', 'Custom Note'],
+    referralCode: ['referralCode'],
+    ambassadorName: ['ambassadorName', 'Ambassador Name'],
   };
   const read = (field) => {
     const header = columns[field];
@@ -125,6 +129,8 @@ function mapRow(row) {
     challenge: read('challenge'),
     goal: read('goal'),
     reason: read('reason'),
+    referralCode: read('referralCode'),
+    ambassadorName: read('ambassadorName'),
     rowNumber: Number(row.rowNumber) || 0,
   };
 }

@@ -276,7 +276,9 @@ function doPost(e) {
     if (!locked) return cliraJSON({ result: 'error', error: 'The sheet is busy. Try again.' });
 
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    sheet.appendRow([
+    var referral = verifiedRegistrationReferral(data);
+    var referralColumns = registrationReferralColumns(sheet);
+    var registrationRow = [
       data.submittedAt || new Date().toISOString(),
       data.fullName || '',
       data.email || '',
@@ -286,10 +288,14 @@ function doPost(e) {
       data.desiredExperience || '',
       data.customNote || '',
       data.selectedTier || 'standard'
-    ]);
+    ];
+    while (registrationRow.length < sheet.getLastColumn()) registrationRow.push('');
+    registrationRow[referralColumns.code] = referral.code;
+    registrationRow[referralColumns.name] = referral.name;
+    sheet.appendRow(registrationRow);
 
     return ContentService
-      .createTextOutput(JSON.stringify({ result: 'success' }))
+      .createTextOutput(JSON.stringify({ result: 'success', referralStored: !!referral.code }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
@@ -300,4 +306,36 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// Only the registration server resolves the central registry. Verify its
+// signature before accepting names or codes sent to this public webhook.
+function verifiedRegistrationReferral(data) {
+  var empty = { code: '', name: '' };
+  if (!/^VSR\d{3}$/.test(String(data.referralCode || ''))) return empty;
+  var props = PropertiesService.getScriptProperties();
+  var secret = props.getProperty('REFERRAL_SHARED_SECRET') || props.getProperty('CLIRA_SHARED_SECRET');
+  if (!secret || !data.ambassadorName || !data.referralSignature) return empty;
+  var message = JSON.stringify([data.email, data.referralCode, data.ambassadorName, data.submittedAt]);
+  var signature = Utilities.computeHmacSha256Signature(message, secret).map(function (byte) {
+    return ('0' + ((byte + 256) % 256).toString(16)).slice(-2);
+  }).join('');
+  if (signature !== data.referralSignature) return empty;
+  return { code: data.referralCode, name: data.ambassadorName };
+}
+
+function registrationReferralColumns(sheet) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  function column(aliases, title) {
+    var index = cliraHeaderIndex(headers, aliases);
+    if (index !== -1) return index;
+    index = headers.length;
+    sheet.getRange(1, index + 1).setValue(title);
+    headers.push(title);
+    return index;
+  }
+  return {
+    code: column(['referral code', 'referralcode'], 'Referral Code'),
+    name: column(['ambassador', 'ambassadorname', 'ambassador name'], 'Ambassador')
+  };
 }

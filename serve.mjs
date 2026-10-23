@@ -36,7 +36,8 @@ const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://localhost:${PORT}`);
     let pathname = decodeURIComponent(url.pathname);
-    if(pathname.startsWith('/api/')) {const route=pathname.slice(5);if(!['referral','payment-config','coupon-check','initialize-payment','verify-payment','register','partner-enquiry','paystack-webhook','recover-access','clira-leads'].includes(route)){res.writeHead(404).end();return;}await require(route==='paystack-webhook'?'./server/paystack-webhook.cjs':'./api/'+route+'.js')(req,res);return;}
+    if(/^\/vsr\d{3}\/?$/i.test(pathname)){await require('./api/ambassador.js')(req,res);return;}
+    if(pathname.startsWith('/api/')) {const route=pathname.slice(5);if(!['ambassador','referral','payment-config','coupon-check','initialize-payment','verify-payment','register','partner-enquiry','paystack-webhook','recover-access','clira-leads'].includes(route)){res.writeHead(404).end();return;}await require(route==='paystack-webhook'?'./server/paystack-webhook.cjs':'./api/'+route+'.js')(req,res);return;}
     if(/^\/(server|\.env|\.git)(\/|$|\.)/.test(pathname)){res.writeHead(404).end();return;}
     if (pathname.endsWith('/')) pathname += 'index.html';
 

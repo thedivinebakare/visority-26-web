@@ -211,7 +211,8 @@ function openPanel(l,opener){
   $('lead-current-status').textContent=M.label(l.status);
   $('summary').textContent=M.summary(l);
   $('answers').replaceChildren(...[
-    ['Role',l.role],['Biggest challenge',l.challenge],['What they want',l.goal],['Why Visority',l.reason]
+    ['Role',l.role],['Biggest challenge',l.challenge],['What they want',l.goal],['Why Visority',l.reason],
+    ['Referred by', [l.ambassadorName,l.referralCode].filter(Boolean).join(' · ') || 'Direct / Unattributed']
   ].map(([label,value])=>{const div=el('div');div.append(el('dt','',label),el('dd','',value||'Not provided'));return div;}));
   $('message').value=d.message;
   $('status').value=d.status;
