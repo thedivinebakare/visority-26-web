@@ -97,6 +97,8 @@ function demoPayload() {
   return { ...data, columns: Object.values(columns).filter(Boolean) };
 }
 
+const ambassadorsRegistry = require('./ambassadors.cjs');
+
 /* Maps a raw sheet row (keyed by header text) onto the Clira field names.
  * A column configured as "" is absent, so its field resolves to ''. */
 function mapRow(row) {
@@ -106,8 +108,8 @@ function mapRow(row) {
     challenge: ['Current Problems', 'Biggest challenge'],
     goal: ['Desired Experience', 'Desired Result', 'What they want'],
     reason: ['Why Visority', 'Reason for joining', 'Custom Note'],
-    referralCode: ['referralCode'],
-    ambassadorName: ['ambassadorName', 'Ambassador Name'],
+    referralCode: ['referralCode', 'referral_code', 'referral code', 'ambassadorCode', 'ambassador_code', 'referredBy', 'referred_by'],
+    ambassadorName: ['ambassadorName', 'ambassador_name', 'ambassador name', 'Ambassador', 'ambassador'],
   };
   const read = (field) => {
     const header = columns[field];
@@ -116,6 +118,11 @@ function mapRow(row) {
     const key = Object.keys(row).find(key => candidates.some(candidate => candidate.toLowerCase() === key.trim().toLowerCase()));
     return key ? String(row[key] == null ? '' : row[key]).trim() : '';
   };
+  const rawCode = read('referralCode');
+  const rawName = read('ambassadorName');
+  const resolved = ambassadorsRegistry.resolve(rawCode);
+  const referralCode = resolved ? resolved.code : rawCode;
+  const ambassadorName = resolved ? resolved.name : rawName;
   return {
     name: read('name'),
     phone: read('phone'),
@@ -129,8 +136,8 @@ function mapRow(row) {
     challenge: read('challenge'),
     goal: read('goal'),
     reason: read('reason'),
-    referralCode: read('referralCode'),
-    ambassadorName: read('ambassadorName'),
+    referralCode,
+    ambassadorName,
     rowNumber: Number(row.rowNumber) || 0,
   };
 }

@@ -7,7 +7,7 @@ let key='';try{key=sessionStorage.getItem(store)||'';}catch{}
   state.filter  : 'All' | pipeline status label
   state.segment : 'All' | 'Free' | 'Premium'
 */
-const state={leads:[],filter:'All',segment:'All',view:'leads',query:'',selected:null,drafts:new Map(),demo:false,loading:false,saving:false,opener:null};
+const state={leads:[],filter:'All',segment:'All',ambassador:'All',view:'leads',query:'',selected:null,drafts:new Map(),demo:false,loading:false,saving:false,opener:null};
 
 function el(tag,cls,content){const n=document.createElement(tag);if(cls)n.className=cls;if(content!==undefined)n.textContent=content;return n;}
 const lid=l=>String(l.rowNumber||l.email||state.leads.indexOf(l));
@@ -61,8 +61,14 @@ function matchesQuery(l){
   if(!q) return true;
   return [l.name,l.email,l.phone].some(x=>M.text(x).toLowerCase().includes(q));
 }
+function matchesAmbassador(l){
+  if(state.ambassador==='All') return true;
+  const ref=M.getLeadReferral(l);
+  if(state.ambassador==='Direct') return ref.type==='direct';
+  return ref.code===state.ambassador;
+}
 function visibleLeads(){
-  return state.leads.filter(l=>matchesFilter(l)&&matchesSegment(l)&&matchesQuery(l));
+  return state.leads.filter(l=>matchesFilter(l)&&matchesSegment(l)&&matchesAmbassador(l)&&matchesQuery(l));
 }
 
 /* Count leads matching a pipeline status + current segment */
@@ -76,6 +82,12 @@ function countForStatus(s){
 
 function choose(filter){state.filter=filter;render();}
 function chooseSegment(seg){state.segment=seg;render();}
+function chooseAmbassador(code){
+  state.ambassador=code;
+  const sel=$('ambassador-filter');
+  if(sel&&sel.value!==code) sel.value=code;
+  render();
+}
 
 /* ---- Main render ---- */
 function render(){
@@ -121,13 +133,45 @@ function render(){
   }));
   $('filters').hidden=state.view==='followups';
 
+  /* Ambassador counts and summary */
+  const ambSummary=$('ambassador-summary');
+  if(ambSummary){
+    const counts={VSR001:0,VSR002:0,VSR003:0,Direct:0};
+    for(const l of state.leads){
+      const ref=M.getLeadReferral(l);
+      if(ref.type==='ambassador'&&counts[ref.code]!==undefined) counts[ref.code]++;
+      else if(ref.type==='direct') counts.Direct++;
+    }
+    const items=[
+      ['VSR001','Eniola',counts.VSR001],
+      ['VSR002','Deborah',counts.VSR002],
+      ['VSR003','Divine',counts.VSR003],
+      ['Direct','Direct',counts.Direct],
+    ];
+    ambSummary.replaceChildren(
+      el('span','ambassador-summary-title','Ambassador referrals'),
+      ...items.map(([code,name,count])=>{
+        const b=el('button','ambassador-pill');
+        b.type='button';
+        b.setAttribute('aria-pressed',String(state.ambassador===code));
+        b.append(document.createTextNode(name+' '),el('strong','',count));
+        b.onclick=()=>chooseAmbassador(state.ambassador===code?'All':code);
+        return b;
+      })
+    );
+  }
+  const ambFilter=$('ambassador-filter');
+  if(ambFilter&&ambFilter.value!==state.ambassador){
+    ambFilter.value=state.ambassador;
+  }
+
   /* Lead rows */
   const leads=visibleLeads();
   $('list-count').textContent=`${leads.length} ${leads.length===1?'lead':'leads'}${state.query?' found':''}`;
   $('rows').replaceChildren(...leads.map(row));
   $('empty').hidden=!!leads.length;
-  $('empty-title').textContent=state.query?'No matching leads':state.view==='followups'?'You’re all caught up':'No leads in this view';
-  $('empty-copy').textContent=state.query?'Try another name, email or phone number.':state.view==='followups'?'Mark someone as Follow-up when they need another conversation.':'Choose All to see your leads, or refresh for new registrations.';
+  $('empty-title').textContent=state.query?'No matching leads':state.view==='followups'?'You’re all caught up':state.ambassador!=='All'?'No leads from this ambassador yet':'No leads in this view';
+  $('empty-copy').textContent=state.query?'Try another name, email or phone number.':state.view==='followups'?'Mark someone as Follow-up when they need another conversation.':state.ambassador!=='All'?'Leads referred by this ambassador will appear here once registered.':'Choose All to see your leads, or refresh for new registrations.';
 }
 
 /* ---- Lead row ---- */
@@ -210,9 +254,11 @@ function openPanel(l,opener){
   $('lead-date').textContent=date(l.date);
   $('lead-current-status').textContent=M.label(l.status);
   $('summary').textContent=M.summary(l);
+  const ref=M.getLeadReferral(l);
+  const refDisplay=ref.type==='ambassador'?`${ref.name} · ${ref.code}`:ref.type==='unknown'?(ref.code?`Unknown · ${ref.code}`:'Unknown referral'):'Direct';
   $('answers').replaceChildren(...[
     ['Role',l.role],['Biggest challenge',l.challenge],['What they want',l.goal],['Why Visority',l.reason],
-    ['Referred by', [l.ambassadorName,l.referralCode].filter(Boolean).join(' · ') || 'Direct / Unattributed']
+    ['Referred by', refDisplay]
   ].map(([label,value])=>{const div=el('div');div.append(el('dt','',label),el('dd','',value||'Not provided'));return div;}));
   $('message').value=d.message;
   $('status').value=d.status;
@@ -303,6 +349,7 @@ $('auth').addEventListener('cancel',e=>e.preventDefault());
 $('auth-form').onsubmit=e=>{e.preventDefault();$('unlock').disabled=true;setKey($('key').value.trim());load();};
 $('refresh').onclick=load;$('retry').onclick=load;
 $('search').oninput=e=>{state.query=e.target.value;render();};
+const ambFilter=$('ambassador-filter');if(ambFilter)ambFilter.onchange=e=>chooseAmbassador(e.target.value);
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 $('lock').onclick=()=>{setKey('');auth();};
 

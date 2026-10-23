@@ -84,6 +84,52 @@
     return parts.join('\n\n');
   }
 
-  const api={text,status,label,pass,segment,isFree,isPremium,phone,summary,message};
+  /* Single source of truth for vanity-code attribution (mirrors server/ambassadors.cjs). */
+  const AMBASSADORS = {
+    VSR001: { name: 'Eniola', active: true },
+    VSR002: { name: 'Deborah', active: true },
+    VSR003: { name: 'Divine', active: true },
+  };
+
+  function resolveAmbassador(code) {
+    const canonical = typeof code === 'string' ? code.trim().toUpperCase() : '';
+    const entry = /^VSR\d{3}$/.test(canonical) && AMBASSADORS[canonical];
+    return entry?.active ? { code: canonical, name: entry.name } : null;
+  }
+
+  function getLeadReferral(l) {
+    if (!l) return { type: 'direct', code: '', name: 'Direct', label: 'Direct' };
+    const rawCode = text(l.referralCode || l.referral_code || l.ambassadorCode || l.ambassador_code || l.referredBy || l.referred_by);
+    const rawName = text(l.ambassadorName || l.ambassador_name || l.ambassador);
+
+    if (rawCode) {
+      const resolved = resolveAmbassador(rawCode);
+      if (resolved) {
+        return { type: 'ambassador', code: resolved.code, name: resolved.name, label: `${resolved.name} · ${resolved.code}` };
+      }
+      if (rawName) {
+        const byName = Object.entries(AMBASSADORS).find(([_, a]) => a.active && a.name.toLowerCase() === rawName.toLowerCase());
+        if (byName) {
+          return { type: 'ambassador', code: byName[0], name: byName[1].name, label: `${byName[1].name} · ${byName[0]}` };
+        }
+      }
+      return { type: 'unknown', code: rawCode, name: rawName || 'Unknown referral', label: rawCode ? `Unknown · ${rawCode}` : 'Unknown referral' };
+    }
+
+    if (rawName) {
+      const byName = Object.entries(AMBASSADORS).find(([_, a]) => a.active && a.name.toLowerCase() === rawName.toLowerCase());
+      if (byName) {
+        return { type: 'ambassador', code: byName[0], name: byName[1].name, label: `${byName[1].name} · ${byName[0]}` };
+      }
+      if (/^direct(\s*\/\s*unattributed)?$/i.test(rawName)) {
+        return { type: 'direct', code: '', name: 'Direct', label: 'Direct' };
+      }
+      return { type: 'unknown', code: '', name: rawName, label: rawName };
+    }
+
+    return { type: 'direct', code: '', name: 'Direct', label: 'Direct' };
+  }
+
+  const api={text,status,label,pass,segment,isFree,isPremium,phone,summary,message,ambassadors:AMBASSADORS,resolveAmbassador,getLeadReferral};
   if(typeof module!=='undefined')module.exports=api;else root.CliraModel=api;
 })(globalThis);
