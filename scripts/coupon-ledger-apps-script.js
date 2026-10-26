@@ -37,19 +37,21 @@ function couponLedgerHandle(e) {
     var sheet = book.getSheetByName(name);
     var state;
     if (!sheet) {
+      var active = book.getActiveSheet();
+      try { sheet = book.insertSheet(name); } finally { if (active) book.setActiveSheet(active); }
+    }
+    var length = sheet.getLastRow();
+    if (length < 2) {
       var maximum = Number.isInteger(command.maximum) && command.maximum > 0 ? command.maximum : 20;
       var couponName = typeof command.coupon === 'string' && command.coupon ? command.coupon : 'CATERSTUDIOS';
       state = {maximum: maximum, entries: Array.isArray(command.entries) ? command.entries : []};
       couponTransition(state, {op: 'status'});
-      var active = book.getActiveSheet();
-      try { sheet = book.insertSheet(name); } finally { if (active) book.setActiveSheet(active); }
-      var initial = [[protocol, couponName, state.maximum], ['Reference', 'Status', 'CreatedAt', 'ExpiresAt']]
+      var initial = [[protocol, couponName, state.maximum, ''], ['Reference', 'Status', 'CreatedAt', 'ExpiresAt']]
         .concat(state.entries.map(function (v) { return [v.reference, v.status, v.createdAt || '', v.expiresAt || '']; }));
       sheet.getRange(1, 1, initial.length, 4).setValues(initial);
       SpreadsheetApp.flush();
     } else {
-      var length = sheet.getLastRow();
-      if (length < 2 || length > 10000) throw Error('Invalid ledger size');
+      if (length > 10000) throw Error('Invalid ledger size');
       var rows = sheet.getRange(1, 1, length, 4).getValues();
       if (rows[0][0] !== protocol || rows[0][1] !== command.coupon ||
           rows[0][2] !== command.maximum || rows[1][0] !== 'Reference' || rows[1][1] !== 'Status') {
@@ -69,7 +71,7 @@ function couponLedgerHandle(e) {
     if (before !== JSON.stringify(state.entries)) {
       if (state.entries.length > 9998) throw Error('Ledger capacity reached');
       sheet.clearContents();
-      var outputRows = [[protocol, command.coupon, state.maximum], ['Reference', 'Status', 'CreatedAt', 'ExpiresAt']]
+      var outputRows = [[protocol, command.coupon, state.maximum, ''], ['Reference', 'Status', 'CreatedAt', 'ExpiresAt']]
         .concat(state.entries.map(function (v) {
           return [v.reference, v.status, v.createdAt || '', v.expiresAt || ''];
         }));
