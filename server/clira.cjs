@@ -118,9 +118,18 @@ function mapRow(row) {
     const key = Object.keys(row).find(key => candidates.some(candidate => candidate.toLowerCase() === key.trim().toLowerCase()));
     return key ? String(row[key] == null ? '' : row[key]).trim() : '';
   };
-  const rawCode = read('referralCode');
-  const rawName = read('ambassadorName');
-  const resolved = ambassadorsRegistry.resolve(rawCode);
+  let rawCode = read('referralCode');
+  let rawName = read('ambassadorName');
+  const reason = read('reason');
+
+  if (!rawCode && reason) {
+    const match = /Ambassador reference:\s*(VSR\d{3})/i.exec(reason) ||
+                  /(?:referral|ambassador|ref)\s*[:=]\s*(VSR\d{3})/i.exec(reason) ||
+                  /\b(VSR00[1-4])\b/i.exec(reason);
+    if (match) rawCode = match[1].toUpperCase();
+  }
+
+  const resolved = ambassadorsRegistry.resolve(rawCode) || ambassadorsRegistry.resolve(rawName);
   const referralCode = resolved ? resolved.code : rawCode;
   const ambassadorName = resolved ? resolved.name : rawName;
   return {
@@ -135,7 +144,7 @@ function mapRow(row) {
     note: read('note'),
     challenge: read('challenge'),
     goal: read('goal'),
-    reason: read('reason'),
+    reason,
     referralCode,
     ambassadorName,
     rowNumber: Number(row.rowNumber) || 0,

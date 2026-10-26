@@ -7,10 +7,16 @@
     VSR004: { name: 'Special', active: true },
   };
 
-  function resolve(code) {
-    const canonical = typeof code === 'string' ? code.trim().toUpperCase() : '';
-    const entry = /^VSR\d{3}$/.test(canonical) && ambassadors[canonical];
-    return entry?.active ? { code: canonical, name: entry.name } : null;
+  function resolve(codeOrName) {
+    if (typeof codeOrName !== 'string') return null;
+    const trimmed = codeOrName.trim();
+    const canonical = trimmed.toUpperCase();
+    if (/^VSR\d{3}$/.test(canonical)) {
+      const entry = ambassadors[canonical];
+      return entry?.active ? { code: canonical, name: entry.name } : null;
+    }
+    const match = Object.entries(ambassadors).find(([_, a]) => a.active && a.name.toLowerCase() === trimmed.toLowerCase());
+    return match ? { code: match[0], name: match[1].name } : null;
   }
 
   const exp = { ambassadors, resolve };

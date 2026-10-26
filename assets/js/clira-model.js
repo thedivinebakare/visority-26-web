@@ -105,10 +105,16 @@
         VSR003: { name: 'Chiamaka Ajuzie', active: true },
         VSR004: { name: 'Special', active: true },
       },
-      resolve(code) {
-        const canonical = typeof code === 'string' ? code.trim().toUpperCase() : '';
-        const entry = /^VSR\d{3}$/.test(canonical) && this.ambassadors[canonical];
-        return entry?.active ? { code: canonical, name: entry.name } : null;
+      resolve(codeOrName) {
+        if (typeof codeOrName !== 'string') return null;
+        const trimmed = codeOrName.trim();
+        const canonical = trimmed.toUpperCase();
+        if (/^VSR\d{3}$/.test(canonical)) {
+          const entry = this.ambassadors[canonical];
+          return entry?.active ? { code: canonical, name: entry.name } : null;
+        }
+        const match = Object.entries(this.ambassadors).find(([_, a]) => a.active && a.name.toLowerCase() === trimmed.toLowerCase());
+        return match ? { code: match[0], name: match[1].name } : null;
       }
     };
   }
@@ -131,9 +137,17 @@
 
   function getLeadReferral(l) {
     if (!l) return { type: 'direct', code: '', name: 'Direct', label: 'Direct' };
-    const rawCode = text(l.referralCode || l.referral_code || l.ambassadorCode || l.ambassador_code || l.referredBy || l.referred_by);
-    const rawName = text(l.ambassadorName || l.ambassador_name || l.ambassador);
+    let rawCode = text(l.referralCode || l.referral_code || l.ambassadorCode || l.ambassador_code || l.referredBy || l.referred_by);
+    let rawName = text(l.ambassadorName || l.ambassador_name || l.ambassador);
     const registry = getRegistry();
+
+    if (!rawCode && (l.reason || l.customNote)) {
+      const note = text(l.reason || l.customNote);
+      const match = /Ambassador reference:\s*(VSR\d{3})/i.exec(note) ||
+                    /(?:referral|ambassador|ref)\s*[:=]\s*(VSR\d{3})/i.exec(note) ||
+                    /\b(VSR00[1-4])\b/i.exec(note);
+      if (match) rawCode = match[1].toUpperCase();
+    }
 
     if (rawCode) {
       const resolved = registry.resolve(rawCode);
@@ -141,18 +155,18 @@
         return { type: 'ambassador', code: resolved.code, name: resolved.name, label: `${resolved.name} · ${resolved.code}` };
       }
       if (rawName) {
-        const byName = Object.entries(registry.ambassadors || {}).find(([_, a]) => a.active && a.name.toLowerCase() === rawName.toLowerCase());
-        if (byName) {
-          return { type: 'ambassador', code: byName[0], name: byName[1].name, label: `${byName[1].name} · ${byName[0]}` };
+        const resolvedName = registry.resolve(rawName);
+        if (resolvedName) {
+          return { type: 'ambassador', code: resolvedName.code, name: resolvedName.name, label: `${resolvedName.name} · ${resolvedName.code}` };
         }
       }
       return { type: 'unknown', code: rawCode, name: rawName || 'Unknown referral', label: rawCode ? `Unknown · ${rawCode}` : 'Unknown referral' };
     }
 
     if (rawName) {
-      const byName = Object.entries(registry.ambassadors || {}).find(([_, a]) => a.active && a.name.toLowerCase() === rawName.toLowerCase());
-      if (byName) {
-        return { type: 'ambassador', code: byName[0], name: byName[1].name, label: `${byName[1].name} · ${byName[0]}` };
+      const resolvedName = registry.resolve(rawName);
+      if (resolvedName) {
+        return { type: 'ambassador', code: resolvedName.code, name: resolvedName.name, label: `${resolvedName.name} · ${resolvedName.code}` };
       }
       if (/^direct(\s*\/\s*unattributed)?$/i.test(rawName)) {
         return { type: 'direct', code: '', name: 'Direct', label: 'Direct' };

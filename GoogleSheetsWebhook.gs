@@ -167,30 +167,79 @@ function doGet(e) {
 
     var lastColumn = sheet.getLastColumn();
     var values = sheet.getRange(1, 1, lastRow, lastColumn).getValues();
-    var columns = values[0].map(function (cell) { return String(cell).trim(); });
+    var rawHeaders = values[0].map(function (cell) { return String(cell).trim(); });
+
+    // Known default headers for Visority '26 registration sheet columns
+    var defaultHeaders = [
+      'Time', 'Name', 'Email', 'Category', 'Phone Number', 'Current Problems',
+      'Desired Experience', 'Custom Note', 'Pass Tier', 'Follow-up Status',
+      'Last Note', 'Status Updated'
+    ];
+
+    var effectiveColumns = rawHeaders.map(function (column, index) {
+      if (column) return column;
+      return defaultHeaders[index] || ('Column_' + (index + 1));
+    });
+
+    var registry = {
+      'VSR001': 'Israelchima',
+      'VSR002': 'MsDebs',
+      'VSR003': 'Chiamaka Ajuzie',
+      'VSR004': 'Special'
+    };
+
     var rows = values.slice(1)
       .map(function (row, offset) {
         /* offset + 2 is the true sheet row — captured before blank rows are
          * filtered so it stays valid for the write-back path. */
         var lead = { rowNumber: offset + 2 };
-        columns.forEach(function (column, index) {
-          if (!column) return;
+        effectiveColumns.forEach(function (column, index) {
           lead[column] = row[index] instanceof Date
             ? row[index].toISOString()
             : String(row[index] == null ? '' : row[index]).trim();
         });
+
+        // Resolve referral code and ambassador name from dedicated columns or custom note
+        var refCode = lead['Referral Code'] || lead['referralCode'] || lead['referral_code'] || lead['ambassadorCode'] || '';
+        var ambName = lead['Ambassador'] || lead['ambassadorName'] || lead['ambassador_name'] || '';
+
+        if (!refCode) {
+          var note = lead['Custom Note'] || lead['customNote'] || lead['Why Visority'] || '';
+          var match = /Ambassador reference:\s*(VSR\d{3})/i.exec(note) ||
+                      /(?:referral|ambassador|ref)\s*[:=]\s*(VSR\d{3})/i.exec(note) ||
+                      /\b(VSR00[1-4])\b/i.exec(note);
+          if (match) {
+            refCode = match[1].toUpperCase();
+          }
+        }
+
+        if (refCode && !ambName && registry[refCode]) {
+          ambName = registry[refCode];
+        } else if (!refCode && ambName) {
+          for (var code in registry) {
+            if (registry[code].toLowerCase() === ambName.toLowerCase()) {
+              refCode = code;
+              break;
+            }
+          }
+        }
+
+        lead.referralCode = refCode;
+        lead.ambassadorName = ambName;
+
         return lead;
       })
       .filter(function (lead) {
         // Skip blank rows rather than showing empty records.
         return Object.keys(lead).some(function (key) {
-          return key !== 'rowNumber' && lead[key];
+          return key !== 'rowNumber' && key !== 'referralCode' && key !== 'ambassadorName' && lead[key];
         });
       });
 
     return cliraJSON({
       ok: true,
-      columns: columns,
+      columns: effectiveColumns,
+      rawHeaders: rawHeaders,
       leads: rows,
       syncedAt: new Date().toISOString(),
     });
@@ -317,16 +366,38 @@ function doPost(e) {
 // signature before accepting names or codes sent to this public webhook.
 function verifiedRegistrationReferral(data) {
   var empty = { code: '', name: '' };
-  if (!/^VSR\d{3}$/.test(String(data.referralCode || ''))) return empty;
+  var code = String(data.referralCode || '').trim().toUpperCase();
+  var name = String(data.ambassadorName || '').trim();
+
+  if (!code && data.customNote) {
+    var match = /Ambassador reference:\s*(VSR\d{3})/i.exec(data.customNote);
+    if (match) code = match[1].toUpperCase();
+  }
+
+  if (!/^VSR\d{3}$/.test(code)) return empty;
+
+  var registry = {
+    'VSR001': 'Israelchima',
+    'VSR002': 'MsDebs',
+    'VSR003': 'Chiamaka Ajuzie',
+    'VSR004': 'Special'
+  };
+
+  if (!registry[code]) return empty;
+
   var props = PropertiesService.getScriptProperties();
   var secret = props.getProperty('REFERRAL_SHARED_SECRET') || props.getProperty('CLIRA_SHARED_SECRET');
-  if (!secret || !data.ambassadorName || !data.referralSignature) return empty;
-  var message = JSON.stringify([data.email, data.referralCode, data.ambassadorName, data.submittedAt]);
-  var signature = Utilities.computeHmacSha256Signature(message, secret).map(function (byte) {
-    return ('0' + ((byte + 256) % 256).toString(16)).slice(-2);
-  }).join('');
-  if (signature !== data.referralSignature) return empty;
-  return { code: data.referralCode, name: data.ambassadorName };
+  if (secret && data.ambassadorName && data.referralSignature) {
+    var message = JSON.stringify([data.email, data.referralCode, data.ambassadorName, data.submittedAt]);
+    var signature = Utilities.computeHmacSha256Signature(message, secret).map(function (byte) {
+      return ('0' + ((byte + 256) % 256).toString(16)).slice(-2);
+    }).join('');
+    if (signature === data.referralSignature) {
+      return { code: code, name: data.ambassadorName };
+    }
+  }
+
+  return { code: code, name: name || registry[code] };
 }
 
 function registrationReferralColumns(sheet) {
