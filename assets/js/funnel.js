@@ -30,13 +30,69 @@
       if(manualFeedback&&manualFeedback.textContent.includes('online payment via Paystack only'))manualFeedback.textContent='';
     }
   }
-  const applyBtn=$('#coupon-apply'),clearBtn=$('#coupon-clear'),codeInput=$('#coupon-code'),couponFeedback=$('#coupon-feedback');
+  const applyBtn=$('#coupon-apply'),clearBtn=$('#coupon-clear'),codeInput=$('#coupon-code'),couponFeedback=$('#coupon-feedback'),availabilityEl=$('#coupon-availability');
+  let availabilityTimer=null;
+  function formatCouponAvailability(data,label){
+    if(!data||typeof data.available!=='number')return null;
+    const avail=Math.max(0,data.available),max=data.max||20;
+    const name=label||data.label||appliedCoupon?.label||'Discount';
+    if(avail<=0)return {text:`${name} discount fully claimed`,state:'exhausted'};
+    if(avail===1)return {text:`Only 1 ${name} discount spot remaining`,state:'low'};
+    if(avail<=5)return {text:`Only ${avail} ${name} discount spots remaining`,state:'low'};
+    return {text:`${avail} of ${max} ${name} discount spots remaining`,state:'healthy'};
+  }
+  async function fetchAvailability(force=false){
+    if(!appliedCoupon){
+      if(availabilityEl){availabilityEl.hidden=true;availabilityEl.textContent='';availabilityEl.className='coupon-availability';}
+      return;
+    }
+    if(document.hidden&&!force)return;
+    try{
+      const res=await fetch('/api/coupon-availability?code='+encodeURIComponent(appliedCoupon.code),{cache:'no-store'});
+      if(!res.ok)throw Error();
+      const data=await res.json();
+      if(!appliedCoupon)return;
+      const formatted=formatCouponAvailability(data,data.label||appliedCoupon.label);
+      if(availabilityEl&&formatted){
+        if(availabilityEl.textContent!==formatted.text)availabilityEl.textContent=formatted.text;
+        availabilityEl.className='coupon-availability is-'+formatted.state;
+        availabilityEl.hidden=false;
+      }
+    }catch{
+      if(availabilityEl&&!availabilityEl.textContent){
+        const name=appliedCoupon?.label||'Discount';
+        availabilityEl.textContent=`Checking ${name} availability…`;
+        availabilityEl.className='coupon-availability';
+        availabilityEl.hidden=false;
+      }
+    }
+  }
+  function startAvailabilityPolling(){
+    stopAvailabilityPolling();
+    fetchAvailability(true);
+    availabilityTimer=setInterval(()=>{if(!document.hidden)fetchAvailability(false);},5000);
+  }
+  function stopAvailabilityPolling(){
+    if(availabilityTimer){clearInterval(availabilityTimer);availabilityTimer=null;}
+  }
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&appliedCoupon)fetchAvailability(true);});
+  window.addEventListener('focus',()=>{if(appliedCoupon)fetchAvailability(true);});
   function setCouponFeedback(text,state){if(!couponFeedback)return;couponFeedback.textContent=text;couponFeedback.className='coupon-feedback'+(state?' is-'+state:'');}
-  function clearCoupon(){appliedCoupon=null;if(codeInput){codeInput.value='';codeInput.readOnly=false;}if(applyBtn)applyBtn.hidden=false;if(clearBtn)clearBtn.hidden=true;setCouponFeedback('',null);paintAmount();}
+  function clearCoupon(){
+    stopAvailabilityPolling();
+    appliedCoupon=null;
+    if(codeInput){codeInput.value='';codeInput.readOnly=false;}
+    if(applyBtn)applyBtn.hidden=false;
+    if(clearBtn)clearBtn.hidden=true;
+    setCouponFeedback('',null);
+    if(availabilityEl){availabilityEl.hidden=true;availabilityEl.textContent='';availabilityEl.className='coupon-availability';}
+    paintAmount();
+  }
   if(applyBtn&&codeInput){codeInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyBtn.click();}});
   applyBtn.addEventListener('click',async()=>{const code=codeInput.value.trim();if(!code){setCouponFeedback('Enter a discount code first.','error');codeInput.focus();return;}applyBtn.disabled=true;applyBtn.textContent='Checking…';setCouponFeedback('',null);
   try{const r=await fetch('/api/coupon-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await r.json();if(!data.valid)throw Error(data.message||'That discount code is not valid.');
   appliedCoupon=data;codeInput.value=data.code;codeInput.readOnly=true;applyBtn.hidden=true;clearBtn.hidden=false;setCouponFeedback(data.message+' You pay '+data.display+'.','valid');paintAmount();if($('#payment-feedback'))$('#payment-feedback').textContent='';
+  startAvailabilityPolling();
   }catch(err){appliedCoupon=null;codeInput.readOnly=false;applyBtn.hidden=false;setCouponFeedback(err.message,'error');paintAmount();}
   finally{applyBtn.disabled=false;applyBtn.textContent='Apply';}});
   clearBtn?.addEventListener('click',()=>{clearCoupon();codeInput.focus();});}

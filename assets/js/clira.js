@@ -367,5 +367,26 @@ const ambFilter=$('ambassador-filter');if(ambFilter)ambFilter.onchange=e=>choose
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 $('lock').onclick=()=>{setKey('');auth();};
 
+/* Lightweight read-only coupon status tracker for live call monitoring */
+async function syncCouponStatus(){
+  const bar=$('clira-coupon-status');
+  if(!bar||document.hidden)return;
+  try{
+    const r=await fetch('/api/coupon-availability?code=CATERSTUDIOS',{cache:'no-store'});
+    if(!r.ok)return;
+    const d=await r.json();
+    if(typeof d.available==='number'){
+      $('clira-coupon-redeemed').textContent=d.redeemed||0;
+      $('clira-coupon-reserved').textContent=d.reserved||0;
+      $('clira-coupon-available').textContent=d.available||0;
+      bar.hidden=false;
+    }
+  }catch{}
+}
+setInterval(syncCouponStatus,5000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncCouponStatus();});
+window.addEventListener('focus',syncCouponStatus);
+syncCouponStatus();
+
 render();if(key)load();else auth();
 })();

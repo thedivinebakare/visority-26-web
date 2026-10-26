@@ -102,12 +102,40 @@ async function release(coupon = DEFAULT_COUPON, reference, proof) {
   return executeCommand({ op: 'release', coupon, reference, proof });
 }
 
+async function getCouponAvailability(coupon = DEFAULT_COUPON) {
+  const state = await status(coupon);
+  if (!state || !state.ok) {
+    return {
+      ok: false,
+      couponCode: coupon,
+      code: state?.code || 'LEDGER_UNAVAILABLE',
+      message: state?.message || 'Coupon ledger is unavailable.'
+    };
+  }
+  const max = Number.isInteger(state.maximum) ? state.maximum : DEFAULT_MAX;
+  const redeemed = Number.isInteger(state.used) ? Math.max(0, state.used) : 0;
+  const reserved = Number.isInteger(state.held) ? Math.max(0, state.held) : 0;
+  const available = Math.max(0, Math.min(max, max - redeemed - reserved));
+  const exhausted = available <= 0;
+  return {
+    ok: true,
+    couponCode: coupon,
+    max,
+    redeemed,
+    reserved,
+    available,
+    exhausted,
+    updatedAt: new Date().toISOString()
+  };
+}
+
 module.exports = {
   executeCommand,
   status,
   reserve,
   commit,
   release,
+  getCouponAvailability,
   setTransport,
   PROTOCOL,
   DEFAULT_COUPON,
