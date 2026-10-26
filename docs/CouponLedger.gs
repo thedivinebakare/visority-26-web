@@ -97,7 +97,7 @@ function couponLedgerHandle(e) {
     envelope = JSON.parse(e.postData.contents);
     var secret = PropertiesService.getScriptProperties().getProperty('COUPON_LEDGER_SECRET') ||
                  PropertiesService.getScriptProperties().getProperty('CLIRA_SHARED_SECRET');
-    if (!secret || secret.length < 32 || typeof envelope.payload !== 'string' ||
+    if (!secret || typeof envelope.payload !== 'string' ||
         envelope.payload.length > 100000 || !/^[a-f0-9]{64}$/.test(envelope.signature || '')) {
       return reply({ok: false, code: 'UNAUTHORIZED'});
     }
