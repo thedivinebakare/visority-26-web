@@ -1,10 +1,14 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
-process.env.PAYSTACK_SECRET_KEY='sk_live_mock';process.env.FUNNEL_SESSION_SECRET='mock-secret-with-at-least-thirty-two-characters';process.env.PUBLIC_SITE_URL='https://www.visoritylive.com';
+process.env.PAYSTACK_SECRET_KEY='sk_live_mock';process.env.FUNNEL_SESSION_SECRET='mock-secret-with-at-least-thirty-two-characters';process.env.PUBLIC_SITE_URL='https://www.visoritylive.com';process.env.CLIRA_ACCESS_KEY='mock-clira-access-key-at-least-thirty-two-chars';process.env.CLIRA_SHEETS_URL='https://script.google.com/macros/s/mock/exec';
 const init=require('./api/initialize-payment.js'),verify=require('./api/verify-payment.js'),coupons=require('./server/coupons.cjs'),{sign,isPremiumCharge}=require('./server/payment.cjs');
 async function call(handler,req){let result;const headers={};await handler(req,{setHeader(k,v){headers[k]=v;},end(s){result={status:this.statusCode,data:JSON.parse(s),headers};}});return result;}
 (async()=>{
 assert.equal(coupons.resolve('caterstudios').amount,250000);assert.equal(coupons.resolve('wrong'),null);
-let sent;global.fetch=async(url,options)=>String(url).includes('/verify/')?{ok:true,json:async()=>({status:true,data:{status:'pending'}})}:{ok:true,json:async()=>{sent=JSON.parse(options.body);return {status:true,data:{authorization_url:'https://checkout.paystack.com/mock'}};}};
+let sent;global.fetch=async(url,options)=>{
+  if(String(url).includes('/verify/'))return{ok:true,json:async()=>({status:true,data:{status:'pending'}})};
+  if(options?.body&&String(options.body).includes('couponLedger'))return{ok:true,text:async()=>JSON.stringify({ok:true,status:'reserved',used:0,held:1,maximum:20,available:19}),json:async()=>({ok:true,status:'reserved',used:0,held:1,maximum:20,available:19})};
+  sent=JSON.parse(options.body);return{ok:true,json:async()=>({status:true,data:{authorization_url:'https://checkout.paystack.com/mock'}})};
+};
 const old={reference:'viso26-old',name:'QA User',email:'qa@example.invalid',url:'https://checkout.paystack.com/old',amount:500000,coupon:'',exp:Date.now()+100000};
 let r=await call(init,{method:'POST',headers:{cookie:'visority_order='+encodeURIComponent(sign(old))},body:{name:old.name,email:old.email,coupon:'caterstudios',amount:1}});assert.equal(r.status,200);assert.equal(sent.amount,250000);assert.notEqual(r.data.url,old.url);assert.equal(sent.metadata.couponCode,'CATERSTUDIOS');
 r=await call(init,{method:'POST',headers:{},body:{name:old.name,email:old.email,coupon:'invalid'}});assert.equal(r.status,400);

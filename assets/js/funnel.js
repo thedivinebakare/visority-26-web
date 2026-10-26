@@ -13,7 +13,23 @@
   $('#pay-online').disabled=true;$('#manual-paid').disabled=true;
   let appliedCoupon=null;
   const FULL='₦5,000';
-  function paintAmount(){const display=appliedCoupon?appliedCoupon.display:FULL;all('[data-amount]').forEach(e=>e.textContent=display);if($('#order-amount'))$('#order-amount').textContent=display;const original=$('#order-original');if(original){original.hidden=!appliedCoupon;if(appliedCoupon)original.textContent=appliedCoupon.originalDisplay;}}
+  function paintAmount(){
+    const display=appliedCoupon?appliedCoupon.display:FULL;
+    all('[data-amount]').forEach(e=>e.textContent=display);
+    if($('#order-amount'))$('#order-amount').textContent=display;
+    const original=$('#order-original');
+    if(original){original.hidden=!appliedCoupon;if(appliedCoupon)original.textContent=appliedCoupon.originalDisplay;}
+    const manualBtn=$('#manual-paid'),copyBtn=$('#copy-account'),manualFeedback=$('#manual-feedback');
+    if(appliedCoupon){
+      if(manualBtn)manualBtn.disabled=true;
+      if(copyBtn)copyBtn.disabled=true;
+      if(manualFeedback)manualFeedback.textContent='This discount code is valid for online payment via Paystack only. Remove the code to pay by bank transfer.';
+    }else{
+      if(manualBtn)manualBtn.disabled=!config?.manualReady;
+      if(copyBtn)copyBtn.disabled=!config?.manualReady;
+      if(manualFeedback&&manualFeedback.textContent.includes('online payment via Paystack only'))manualFeedback.textContent='';
+    }
+  }
   const applyBtn=$('#coupon-apply'),clearBtn=$('#coupon-clear'),codeInput=$('#coupon-code'),couponFeedback=$('#coupon-feedback');
   function setCouponFeedback(text,state){if(!couponFeedback)return;couponFeedback.textContent=text;couponFeedback.className='coupon-feedback'+(state?' is-'+state:'');}
   function clearCoupon(){appliedCoupon=null;if(codeInput){codeInput.value='';codeInput.readOnly=false;}if(applyBtn)applyBtn.hidden=false;if(clearBtn)clearBtn.hidden=true;setCouponFeedback('',null);paintAmount();}
@@ -27,14 +43,23 @@
   paintAmount();
  form.addEventListener('submit',async e=>{e.preventDefault();if(!form.reportValidity()||!config?.onlineReady)return;if(applyBtn?.disabled){$('#payment-feedback').textContent='Please wait while your discount is checked.';return;}const button=$('#pay-online');button.disabled=true;button.textContent='Opening secure checkout…';try{await window.visorityReferralReady;const r=await fetch('/api/initialize-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('#checkout-name').value.trim(),email:$('#checkout-email').value.trim(),coupon:appliedCoupon?appliedCoupon.code:''})});const data=await r.json();if(!r.ok)throw Error(data.message);const destination=new URL(data.url,location.origin);if(destination.origin!==location.origin&&destination.hostname!=='checkout.paystack.com')throw Error('Checkout could not be opened. Contact the team.');location.assign(destination.href);}catch(err){$('#payment-feedback').textContent=err.message;button.disabled=false;button.textContent='Try Paystack again ↗';}});
  $('#copy-account').addEventListener('click',async()=>{if(!config?.manualReady)return;try{await navigator.clipboard.writeText(config.bank.number);$('#manual-feedback').textContent='Account number copied.';}catch{$('#manual-feedback').textContent='Copy the account number shown above manually.';}});
- $('#manual-paid').addEventListener('click',()=>{if(!config?.manualReady||!form.reportValidity())return;if(applyBtn?.disabled){$('#manual-feedback').textContent='Please wait while your discount is checked.';return;}const name=$('#checkout-name').value.trim(),email=$('#checkout-email').value.trim(),amount=appliedCoupon?appliedCoupon.display:FULL;
-const message=`Hello Visority team, I just made payment for my Premium pass.
+ $('#manual-paid').addEventListener('click',()=>{
+  if(!config?.manualReady||!form.reportValidity())return;
+  if(appliedCoupon){
+    $('#manual-feedback').textContent='This discount code is valid for online payment via Paystack only. Remove the code to pay by bank transfer.';
+    return;
+  }
+  if(applyBtn?.disabled){$('#manual-feedback').textContent='Please wait while your discount is checked.';return;}
+  const name=$('#checkout-name').value.trim(),email=$('#checkout-email').value.trim(),amount=FULL;
+  const message=`Hello Visority team, I just made payment for my Premium pass.
 Name: ${name}
 Email: ${email}
-Amount: NGN ${amount.replace('₦','')}${appliedCoupon?`
-Discount code: ${appliedCoupon.code} (${appliedCoupon.label}, ${appliedCoupon.percent}% off)`:''}
+Amount: NGN ${amount.replace('₦','')}
 Recipient: ${config.bank.holder} / ${config.bank.name} / ${config.bank.number}
-I will attach my receipt. Please confirm receipt and share my Premium access.`;$('#manual-feedback').textContent='Send the message and attach your receipt in WhatsApp. Await the team’s confirmation before paying again.';window.open('https://wa.me/'+($('#manual-paid').dataset.admin||'2348106535169')+'?text='+encodeURIComponent(message),'_blank','noopener');});
+I will attach my receipt. Please confirm receipt and share my Premium access.`;
+  $('#manual-feedback').textContent='Send the message and attach your receipt in WhatsApp. Await the team’s confirmation before paying again.';
+  window.open('https://wa.me/'+($('#manual-paid').dataset.admin||'2348106535169')+'?text='+encodeURIComponent(message),'_blank','noopener');
+});
  }
  async function verify(){const status=$('#access-status');if(!status)return;$('#premium-access').hidden=true;$('#access-pending').hidden=false;try{const r=await fetch('/api/verify-payment',{cache:'no-store'});const data=await r.json();status.textContent=data.message||'Your Premium payment is verified.';if(data.status==='verified'){render(data.name,data.email);$('#access-title').textContent='Welcome to Premium, '+data.name.trim().split(/\s+/)[0]+'.';$('#premium-community').href=data.community;$('#premium-access').hidden=false;$('#access-pending').hidden=true;all('[data-ticket-status]').forEach(e=>e.textContent='Premium · Payment verified');}else if(data.status==='test'){render(data.name,data.email);$('#access-title').textContent='Welcome to Premium, '+data.name.trim().split(/\s+/)[0]+'.';$('#premium-access').hidden=false;$('#access-pending').hidden=true;$('#premium-community').removeAttribute('href');$('#premium-community').setAttribute('aria-disabled','true');$('#premium-community').textContent='Community access · live payments only';all('[data-ticket-status]').forEach(e=>e.textContent='TEST PAYMENT SUCCESSFUL · NO REAL CHARGE');}else $('#access-title').textContent='Let’s get your access sorted.';}catch{status.textContent='We couldn’t check your payment. Contact the team if you have already paid.';}}
  $('#recheck-payment')?.addEventListener('click',verify);if($('#access-status')){if(localPreview&&new URLSearchParams(location.search).get('preview')==='success'){try{profile=JSON.parse(sessionStorage.getItem('visority_preview_identity'))||profile;}catch{}const first=(profile.fullName||'Divine').split(/\s+/)[0];render(profile.fullName||'Divine',profile.email||'');$('#access-title').textContent='Welcome to Premium, '+first+'.';$('#access-status').textContent='LOCAL PREVIEW · This is the successful-payment experience. No payment was taken.';$('#premium-access').hidden=false;$('#access-pending').hidden=true;$('#premium-community').textContent='Join the Premium community ↗';$('#premium-community').removeAttribute('href');$('#premium-community').setAttribute('aria-disabled','true');$('#premium-community').title='Preview only — real access unlocks after verified payment';all('[data-ticket-status]').forEach(e=>e.textContent='PREMIUM EXPERIENCE / DESIGN PREVIEW');}else verify();}

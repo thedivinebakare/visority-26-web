@@ -1,4 +1,29 @@
 const coupons=require('../server/coupons.cjs');
+const couponLedger=require('../server/coupon-ledger-client.cjs');
 const {read,json,paystack,sign,issueOrder,expectedDomain,premiumCommunity,FULL_PRICE}=require('../server/payment.cjs');
-module.exports=async(req,res)=>{if(req.method!=='GET')return json(res,405,{message:'Use GET.'});let order=read(req);
-if(!order)return json(res,401,{status:'unverified',message:'We can’t verify a payment in this browser. If you paid, contact the team with your receipt.'});const expected=Number.isInteger(order.amount)?order.amount:FULL_PRICE;try{const data=await paystack('/transaction/verify/'+encodeURIComponent(order.reference));if(data.status!=='success')return json(res,200,{status:'pending',message:'Your payment is not confirmed yet. If you have paid, please don’t pay again.'});if(data.reference!==order.reference||data.amount!==expected||!coupons.matchesCharge(data)||data.currency!=='NGN'||data.customer?.email?.toLowerCase()!==order.email||data.domain!==expectedDomain())return json(res,409,{status:'unverified',message:'This payment needs a manual check. Contact the team with your receipt.'});if(data.domain!=='live')return json(res,200,{status:'test',name:order.name,email:order.email,message:'Test payment verified. No real payment was taken and live Premium access remains locked.'});return json(res,200,{status:'verified',name:order.name,email:order.email,community:premiumCommunity()});}catch{return json(res,503,{status:'pending',message:'Payment checking is temporarily unavailable. Please don’t pay again; try checking shortly.'});}};
+
+module.exports=async(req,res)=>{
+  if(req.method!=='GET')return json(res,405,{message:'Use GET.'});
+  let order=read(req);
+  if(!order)return json(res,401,{status:'unverified',message:'We can’t verify a payment in this browser. If you paid, contact the team with your receipt.'});
+  const expected=Number.isInteger(order.amount)?order.amount:FULL_PRICE;
+  try{
+    const data=await paystack('/transaction/verify/'+encodeURIComponent(order.reference));
+    if(data.status!=='success')return json(res,200,{status:'pending',message:'Your payment is not confirmed yet. If you have paid, please don’t pay again.'});
+    if(data.reference!==order.reference||data.amount!==expected||!coupons.matchesCharge(data)||data.currency!=='NGN'||data.customer?.email?.toLowerCase()!==order.email||data.domain!==expectedDomain())return json(res,409,{status:'unverified',message:'This payment needs a manual check. Contact the team with your receipt.'});
+
+    const couponCode = data.metadata?.couponCode || order.coupon;
+    if(couponCode === 'CATERSTUDIOS') {
+      try {
+        await couponLedger.commit('CATERSTUDIOS', order.reference);
+      } catch(commitErr){
+        console.error('Coupon commit error in verify:', commitErr);
+      }
+    }
+
+    if(data.domain!=='live')return json(res,200,{status:'test',name:order.name,email:order.email,message:'Test payment verified. No real payment was taken and live Premium access remains locked.'});
+    return json(res,200,{status:'verified',name:order.name,email:order.email,community:premiumCommunity()});
+  }catch{
+    return json(res,503,{status:'pending',message:'Payment checking is temporarily unavailable. Please don’t pay again; try checking shortly.'});
+  }
+};
