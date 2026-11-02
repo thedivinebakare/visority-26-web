@@ -94,12 +94,23 @@ async function reserve(coupon = DEFAULT_COUPON, reference, ttl) {
   return executeCommand({ op: 'reserve', coupon, reference, ttl });
 }
 
+async function activate(coupon = DEFAULT_COUPON, reference, ttl) {
+  return executeCommand({ op: 'activate', coupon, reference, ttl });
+}
+
 async function commit(coupon = DEFAULT_COUPON, reference) {
   return executeCommand({ op: 'commit', coupon, reference });
 }
 
 async function release(coupon = DEFAULT_COUPON, reference, proof) {
   return executeCommand({ op: 'release', coupon, reference, proof });
+}
+
+async function reconcile(coupon = DEFAULT_COUPON, reference, paidAt) {
+  return executeCommand({
+    op: 'reconcile', coupon, reference, paidAt,
+    proof: 'provider_verified_success'
+  });
 }
 
 async function getCouponAvailability(coupon = DEFAULT_COUPON) {
@@ -133,8 +144,10 @@ module.exports = {
   executeCommand,
   status,
   reserve,
+  activate,
   commit,
   release,
+  reconcile,
   getCouponAvailability,
   setTransport,
   PROTOCOL,

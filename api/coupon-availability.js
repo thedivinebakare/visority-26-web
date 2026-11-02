@@ -1,10 +1,10 @@
 const coupons = require('../server/coupons.cjs');
-const couponLedger = require('../server/coupon-ledger-client.cjs');
-const { json, originAllowed } = require('../server/payment.cjs');
+const couponService = require('../server/coupon-service.cjs');
+const { json, originAllowed, paystack, expectedDomain } = require('../server/payment.cjs');
 
 module.exports = async (req, res) => {
-  if (req.method !== 'GET' && req.method !== 'POST') {
-    return json(res, 405, { message: 'Use GET or POST.' });
+  if (req.method !== 'GET') {
+    return json(res, 405, { message: 'Use GET.' });
   }
   if (!originAllowed(req)) {
     return json(res, 403, { message: 'Invalid origin.' });
@@ -22,7 +22,13 @@ module.exports = async (req, res) => {
   const rule = coupons.resolve(code);
   const label = rule?.label || 'Cater Studios';
 
-  const availability = await couponLedger.getCouponAvailability(code);
+  if (code !== couponService.CODE) {
+    return json(res, 404, {ok: false, message: 'Coupon status is not available.'});
+  }
+  const availability = await couponService.currentState({
+    paystack,
+    expectedDomain: expectedDomain()
+  });
   if (!availability.ok) {
     return json(res, 503, {
       ok: false,

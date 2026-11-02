@@ -1,6 +1,7 @@
 const referrals=require('../server/referrals.cjs');
 const coupons=require('../server/coupons.cjs');
 const couponLedger=require('../server/coupon-ledger-client.cjs');
+const couponService=require('../server/coupon-service.cjs');
 const crypto=require('node:crypto');
 const {sign,read,json,body,paystack,originAllowed,onlineReady,issueOrder,isPremiumCharge}=require('../server/payment.cjs');
 
@@ -24,14 +25,26 @@ module.exports=async(req,res)=>{
     if(existing){
       const status=await paystack('/transaction/verify/'+encodeURIComponent(existing.reference));
       if(isPremiumCharge(status)&&status.reference===existing.reference&&status.customer?.email?.toLowerCase()===existing.email)return json(res,200,{url:'/vip/thank-you/'});
-      if(existing.email===email.trim().toLowerCase()&&existing.url&&existing.amount===desiredAmount&&(existing.coupon||'')===desiredCoupon&&['pending','ongoing','processing'].includes(status.status))return json(res,200,{url:existing.url});
+      if(existing.email===email.trim().toLowerCase()&&existing.url&&existing.amount===desiredAmount&&(existing.coupon||'')===desiredCoupon&&['pending','ongoing','processing'].includes(status.status)){
+        if(desiredCoupon!=='CATERSTUDIOS')return json(res,200,{url:existing.url});
+        const ledgerState=await couponLedger.status('CATERSTUDIOS');
+        const reservation=(ledgerState.entries||[]).find(entry=>entry.reference===existing.reference);
+        if(ledgerState.ok&&reservation?.status==='reserved'&&reservation.expiresAt>Date.now())return json(res,200,{url:existing.url});
+      }
     }
 
     const reference='viso26-'+crypto.randomUUID();
 
     // Reserve CATERSTUDIOS coupon slot atomically before issuing Paystack transaction
     if(applied&&applied.code==='CATERSTUDIOS'){
-      const resv=await couponLedger.reserve('CATERSTUDIOS', reference);
+      let resv=await couponLedger.reserve('CATERSTUDIOS', reference);
+      if(!resv.ok&&resv.code==='COUPON_BUSY'){
+        await couponService.currentState({
+          paystack,
+          expectedDomain:process.env.PAYSTACK_SECRET_KEY?.startsWith('sk_live_')?'live':'test'
+        });
+        resv=await couponLedger.reserve('CATERSTUDIOS', reference);
+      }
       if(!resv.ok){
         if(resv.code==='COUPON_EXHAUSTED'){
           return json(res,400,{message:'This coupon has been fully redeemed.'});
@@ -70,6 +83,13 @@ module.exports=async(req,res)=>{
         } catch(_){}
       }
       return json(res,502,{message:'We couldn’t open checkout. No payment was started here. Please try again.'});
+    }
+
+    if(applied&&applied.code==='CATERSTUDIOS'){
+      const activated=await couponLedger.activate('CATERSTUDIOS', reference, couponService.SESSION_MS);
+      if(!activated.ok){
+        return json(res,503,{message:"We couldn't confirm this discount checkout. Please try again shortly."});
+      }
     }
 
     const order={reference,email:email.trim().toLowerCase(),name:name.trim(),url:data.authorization_url,amount,coupon:applied?applied.code:'',exp:Date.now()+30*86400000};

@@ -435,15 +435,7 @@ function couponTransition(state, command) {
     seen[entry.reference] = true;
   });
 
-  // Auto-expire reservations whose TTL has passed (Paystack session timeout = 10 mins)
   var now = Number.isFinite(command.now) ? command.now : Date.now();
-  entries.forEach(function (e) {
-    if (e.status === 'reserved' && Number.isFinite(e.expiresAt) && now >= e.expiresAt) {
-      e.status = 'released';
-      e.releasedAt = now;
-      e.releaseReason = 'provider_session_timeout';
-    }
-  });
 
   var used = entries.filter(function (e) { return e.status === 'redeemed'; }).length;
   var held = entries.filter(function (e) { return e.status === 'reserved'; }).length;
@@ -474,6 +466,12 @@ function couponTransition(state, command) {
     return result({ok: true, status: 'reserved', expiresAt: newEntry.expiresAt});
   }
   if (!entry) return result({ok: false, code: 'REFERENCE_UNKNOWN'});
+  if (command.op === 'activate') {
+    if (entry.status !== 'reserved') return result({ok: false, code: 'REFERENCE_NOT_RESERVED'});
+    var ttl = Number.isFinite(command.ttl) ? command.ttl : 10 * 60 * 1000;
+    entry.expiresAt = now + ttl;
+    return result({ok: true, status: 'reserved', expiresAt: entry.expiresAt});
+  }
   if (command.op === 'commit') {
     if (entry.status === 'redeemed') return result({ok: true, duplicate: true});
     // Never silently conceal an unsafe release or accept an unreserved payment.
@@ -482,6 +480,19 @@ function couponTransition(state, command) {
     entry.redeemedAt = now;
     used++; held--;
     return result({ok: true, duplicate: false});
+  }
+  if (command.op === 'reconcile') {
+    if (entry.status === 'redeemed') return result({ok: true, duplicate: true});
+    var paidAt = Number(command.paidAt);
+    if (command.proof !== 'provider_verified_success' || entry.status !== 'released' ||
+        !Number.isFinite(paidAt) || !Number.isFinite(entry.expiresAt) || paidAt > entry.expiresAt) {
+      return result({ok: false, code: 'RECONCILIATION_REJECTED'});
+    }
+    if (used >= state.maximum) return result({ok: false, code: 'CAP_INVARIANT'});
+    entry.status = 'redeemed';
+    entry.redeemedAt = paidAt;
+    used++;
+    return result({ok: true, duplicate: false, reconciled: true});
   }
   if (command.op === 'release') {
     // Trusted server proof required; 'abandoned' and local expiry are NOT proof.

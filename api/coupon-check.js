@@ -1,6 +1,6 @@
 const coupons=require('../server/coupons.cjs');
-const couponLedger=require('../server/coupon-ledger-client.cjs');
-const {json,body,originAllowed}=require('../server/payment.cjs');
+const couponService=require('../server/coupon-service.cjs');
+const {json,body,originAllowed,paystack,expectedDomain}=require('../server/payment.cjs');
 
 module.exports=async(req,res)=>{
   if(req.method!=='POST')return json(res,405,{message:'Use POST.'});
@@ -13,11 +13,11 @@ module.exports=async(req,res)=>{
   if(!applied)return json(res,400,{valid:false,message:'That discount code is not valid. Check it and try again, or continue at the full price.'});
 
   if(applied.code==='CATERSTUDIOS'){
-    const state=await couponLedger.status('CATERSTUDIOS');
+    const state=await couponService.currentState({paystack,expectedDomain:expectedDomain()});
     if(!state.ok){
       return json(res,503,{valid:false,message:"We couldn't verify this coupon right now. Please try again."});
     }
-    if(state.used>=state.maximum){
+    if(state.redeemed>=state.max){
       return json(res,400,{valid:false,code:'COUPON_EXHAUSTED',message:'All available uses of this coupon have been claimed.'});
     }
     if(state.available<=0){

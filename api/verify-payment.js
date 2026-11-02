@@ -1,5 +1,5 @@
 const coupons=require('../server/coupons.cjs');
-const couponLedger=require('../server/coupon-ledger-client.cjs');
+const couponService=require('../server/coupon-service.cjs');
 const {read,json,paystack,sign,issueOrder,expectedDomain,premiumCommunity,FULL_PRICE}=require('../server/payment.cjs');
 
 module.exports=async(req,res)=>{
@@ -14,11 +14,8 @@ module.exports=async(req,res)=>{
 
     const couponCode = data.metadata?.couponCode || order.coupon;
     if(couponCode === 'CATERSTUDIOS') {
-      try {
-        await couponLedger.commit('CATERSTUDIOS', order.reference);
-      } catch(commitErr){
-        console.error('Coupon commit error in verify:', commitErr);
-      }
+      const committed=await couponService.commitVerified(data,expectedDomain());
+      if(!committed.ok)return json(res,503,{status:'pending',message:'Your payment is confirmed. We are finalizing your discount access; please check again shortly.'});
     }
 
     if(data.domain!=='live')return json(res,200,{status:'test',name:order.name,email:order.email,message:'Test payment verified. No real payment was taken and live Premium access remains locked.'});

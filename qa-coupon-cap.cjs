@@ -64,16 +64,30 @@ const commit = reference => ({ op: 'commit', reference });
   assert.equal(change(state, { op: 'status', now }).available, 0);
   assert.equal(change(state, reserve('viso26-rejected', { now })).code, 'COUPON_BUSY');
 
-  // Advance time past 10 minutes (now + 600001 ms)
+  // The ledger never releases from its own clock. The server verifies Paystack
+  // first, then supplies authoritative expiry proof.
   const later = now + 600001;
   const statusAfterExpiry = change(state, { op: 'status', now: later });
-  assert.equal(statusAfterExpiry.held, 0, 'Expired reservation must no longer be held');
-  assert.equal(statusAfterExpiry.available, 1, 'Capacity must be restored');
+  assert.equal(statusAfterExpiry.held, 1, 'Unverified expiry must stay held');
+  assert.equal(statusAfterExpiry.available, 0, 'Unverified expiry must fail closed');
+  assert.equal(change(state, {op: 'release', reference: 'viso26-will-expire', proof: 'provider_irrevocably_expired'}).ok, true);
 
   // Next reservation is accepted
   const nextRes = change(state, reserve('viso26-accepted-after-expiry', { now: later }));
   assert.equal(nextRes.ok, true, 'Slot after expiry must be reservable');
   console.log('reservation expiry: PASS');
+
+  console.log('--- TEST 3B: reconcile a verified payment released after a missed callback ---');
+  state = seed(18);
+  const reservation = change(state, reserve('viso26-missed-success', {now, ttl: 600000}));
+  assert.equal(reservation.ok, true);
+  assert.equal(change(state, {op: 'release', reference: 'viso26-missed-success', proof: 'provider_irrevocably_expired', now: later}).ok, true);
+  const repaired = change(state, {op: 'reconcile', reference: 'viso26-missed-success', proof: 'provider_verified_success', paidAt: now + 300000, now: later});
+  assert.equal(repaired.ok, true);
+  assert.equal(repaired.reconciled, true);
+  assert.equal(repaired.used, 19);
+  assert.equal(change(state, {op: 'reconcile', reference: 'viso26-missed-success', proof: 'provider_verified_success', paidAt: now + 300000}).duplicate, true);
+  console.log('verified historical reconciliation: PASS');
 
   console.log('--- TEST 4: failed payment ---');
   state = seed(18);

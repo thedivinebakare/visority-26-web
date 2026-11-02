@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 process.env.PAYSTACK_SECRET_KEY='sk_live_mock';process.env.FUNNEL_SESSION_SECRET='mock-secret-with-at-least-thirty-two-characters';process.env.PUBLIC_SITE_URL='https://www.visoritylive.com';process.env.CLIRA_ACCESS_KEY='mock-clira-access-key-at-least-thirty-two-chars';process.env.CLIRA_SHEETS_URL='https://script.google.com/macros/s/mock/exec';
-const init=require('./api/initialize-payment.js'),verify=require('./api/verify-payment.js'),coupons=require('./server/coupons.cjs'),{sign,isPremiumCharge}=require('./server/payment.cjs');
+const init=require('./api/initialize-payment.js'),verify=require('./api/verify-payment.js'),coupons=require('./server/coupons.cjs'),couponLedger=require('./server/coupon-ledger-client.cjs'),{couponTransition}=require('./server/coupon-state.cjs'),{sign,isPremiumCharge}=require('./server/payment.cjs');
 async function call(handler,req){let result;const headers={};await handler(req,{setHeader(k,v){headers[k]=v;},end(s){result={status:this.statusCode,data:JSON.parse(s),headers};}});return result;}
 (async()=>{
 assert.equal(coupons.resolve('caterstudios').amount,250000);assert.equal(coupons.resolve('wrong'),null);
@@ -15,7 +15,10 @@ r=await call(init,{method:'POST',headers:{},body:{name:old.name,email:old.email,
 const charge={status:'success',reference:'viso26-new',amount:250000,currency:'NGN',domain:'live',customer:{email:old.email},metadata:{event:'visority26',couponCode:'CATERSTUDIOS'}};
 assert(isPremiumCharge(charge));assert(!isPremiumCharge({...charge,metadata:{event:'visority26'}}));assert(!isPremiumCharge({...charge,amount:1}));
 global.fetch=async()=>({ok:true,json:async()=>({status:true,data:charge})});
+const ledgerState={maximum:20,entries:[{reference:charge.reference,status:'reserved',createdAt:Date.now(),expiresAt:Date.now()+600000}]};
+couponLedger.setTransport(async command=>couponTransition(ledgerState,command));
 r=await call(verify,{method:'GET',headers:{cookie:'visority_order='+encodeURIComponent(sign({...old,reference:charge.reference,amount:250000,coupon:'CATERSTUDIOS'}))}});assert.equal(r.data.status,'verified');
+couponLedger.setTransport(null);
 for(const path of ['dist/index.html','dist/skill-fund/index.html','dist/checkout/vip/index.html','dist/assets/js/skill-fund.js','dist/assets/js/funnel.js'])assert(!/caterstudios/i.test(fs.readFileSync(path,'utf8')),path+' exposes private code');
 console.log('PASS 50% server price, stale-link replacement, invalid coupon rejection, tampered amount rejection, verified discounted access and public-code privacy.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

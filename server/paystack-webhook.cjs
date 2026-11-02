@@ -1,6 +1,6 @@
 const referrals=require('./referrals.cjs');
 const coupons=require('./coupons.cjs');
-const couponLedger=require('./coupon-ledger-client.cjs');
+const couponService=require('./coupon-service.cjs');
 const {json,verifyPaystackSignature,rawBody,isPremiumCharge,paystack}=require('./payment.cjs');
 const {log}=require('./sheets.cjs');
 
@@ -22,11 +22,8 @@ module.exports=async(req,res)=>{
 
     const code=typeof verified.metadata?.couponCode==='string'?verified.metadata.couponCode.slice(0,40):'';
     if(code==='CATERSTUDIOS'){
-      try {
-        await couponLedger.commit('CATERSTUDIOS', reference);
-      } catch(commitErr){
-        console.error('Coupon commit error in webhook:', commitErr);
-      }
+      const committed=await couponService.commitVerified(verified,verified.domain);
+      if(!committed.ok)return json(res,503,{message:'Coupon redemption will be retried.'});
     }
 
     const name=typeof verified.metadata?.fullName==='string'?verified.metadata.fullName.slice(0,120):'';
